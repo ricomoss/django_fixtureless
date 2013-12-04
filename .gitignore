@@ -1,4 +1,52 @@
-*.log
+*.py[co]
+*.db
+*.db3
 *.pot
-*.pyc
-local_settings.py
+build
+
+# Editor/IDE files
+*~
+*.iml
+*.ipr
+*.iws
+.idea/
+*.tmproj
+*.tmproject
+tmtags
+.*.sw[a-z]
+*.un~
+Session.vim
+.codeintel
+.project
+.pydevproject
+
+# Mac Files
+.DS_Store
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Installer logs
+pip-log.txt
+*.log
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+# Translations
+*.mo
+
+.project
+
+*.sqlite3
+
+#LocalFiles
+pylintrc
+.ropeproject/
+
+
