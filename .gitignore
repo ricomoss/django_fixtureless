@@ -52,3 +52,4 @@ pylintrc
 # pypi files
 MANIFEST
 dist/
+CHANGES.txt
