@@ -49,4 +49,6 @@ pip-log.txt
 pylintrc
 .ropeproject/
 
-
+# pypi files
+MANIFEST
+dist/
