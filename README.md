@@ -10,6 +10,14 @@ Requirements:
 2. Python (2.7+ or 3.3+)
 3. PostgreSQL
 
+Install:
+-----------------
+
+django-fixtureless is registered with Pypi and can be installed using `pip`.::
+
+    pip install django-fixtureless
+
+
 Todo:
 -----------------
 
