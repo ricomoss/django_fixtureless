@@ -27,7 +27,7 @@ often used to provide a set of mock data for testing purposes.  It is tedious to
 model update or to create a new set of fixtures if you want to test specific model parameters.  When the
 project contains a large amount of fixtures tests also begin to run slowly due to the load time.
 
-Fixtureless is meant to bypass all this.  You can create a fixtureless object given the model and **kwargs
+Fixtureless is meant to bypass all this.  You can create a fixtureless object given the model and `**kwargs`
 containing any specific data you want to test.
 
 Here is an example using fixtureless.  Suppose you have a model defined as follows.::
