@@ -6,7 +6,7 @@ Fixtureless Testing Utility for Django.  (ver. 0.6.1)
 Requirements:
 -----------------
 
-1. Django 1.4 <=
+1. Django >= 1.4
 2. Python (2.7+ or 3.3+)
 3. PostgreSQL
 
