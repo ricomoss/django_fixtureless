@@ -51,6 +51,13 @@ POSTGRES_SMALLINT_MIN = -32768
 POSTGRES_BIGINT_MAX = 9223372036854775807
 POSTGRES_BIGINT_MIN = -9223372036854775808
 
+BOOLEAN_FIELD_NAME = 'boolean_field'
+AUTO_FIELD_NAME = 'auto_field'
+# Django does not allow these fields to be "blank" but for the purposes of
+# django-fixtureless we need to be able to generate values for these fields.
+SPECIAL_FIELDS = (BOOLEAN_FIELD_NAME, AUTO_FIELD_NAME)
+
+
 
 def _val_is_unique(val, field):
     """
@@ -218,7 +225,8 @@ def create_instance(klass, **kwargs):
         field_name = field.name
 
         # Don't autogen data that's been provided or if the field can be blank
-        if field_name not in kwargs and not field.blank:
+        if field_name not in kwargs and \
+                (not field.blank or field_name in SPECIAL_FIELDS):
             # Don't set a OneToOneField if it is the pointer to a parent
             # class in multi-table inheritance. Its fields are taken into
             # account in the instance.fields list. (instance.local_fields
