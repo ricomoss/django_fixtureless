@@ -1,7 +1,7 @@
 django-fixtureless
 ====================
 
-Fixtureless Testing Utility for Django.  (ver. 0.6.1)
+Fixtureless Testing Utility for Django.  (ver. 0.7.0)
 
 Requirements:
 -----------------
@@ -36,8 +36,7 @@ Todo:
 
 1. Support MySQL
 2. Support SQLite
-3. Create Unit Tests
-4. Create a factory for creating groups of model objects
+3. Create a factory for creating groups of model objects
 
 
 Usage:
