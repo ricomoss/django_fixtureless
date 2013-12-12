@@ -3,14 +3,20 @@ django-fixtureless
 
 Fixtureless Testing Utility for Django.  (ver. 0.7.0)
 
-Requirements:
+Requirements
 -----------------
 
 1. Django >= 1.4
 2. Python (2.7+ or 3.3+)
-3. PostgreSQL
 
-Install:
+Supports
+-----------------
+
+1. PostgreSQL
+2. SQLite
+3. MySQL
+
+Install
 -----------------
 
 django-fixtureless is registered with Pypi and can be installed using `pip`.::
@@ -18,7 +24,7 @@ django-fixtureless is registered with Pypi and can be installed using `pip`.::
     pip install django-fixtureless
 
 
-Releases and Branches:
+Releases and Branches
 -----------------
 
 The master branch is meant for release.  Upon an update to the master branch the version will increment

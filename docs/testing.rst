@@ -27,3 +27,10 @@ This command should be run from
 Notes
 -----
 We require that tests pass before merging to dev.
+
+MySQL database testing uses Python 2.7 only.  It is possible to use
+Python 3.2+ with MySQL-for-Python-3_.  But until it is fully supported by
+the mysql-python we will not write support for it within the local testing
+and development environments.
+
+.. _MySQL-for-Python-3: https://github.com/davispuh/MySQL-for-Python-3
