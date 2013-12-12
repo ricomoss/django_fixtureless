@@ -3,14 +3,20 @@ django-fixtureless
 
 Fixtureless Testing Utility for Django.  (ver. 0.7.0)
 
-Requirements:
+Requirements
 -----------------
 
 1. Django >= 1.4
 2. Python (2.7+ or 3.3+)
-3. PostgreSQL
 
-Install:
+Supports
+-----------------
+
+1. PostgreSQL
+2. SQLite
+3. MySQL
+
+Install
 -----------------
 
 django-fixtureless is registered with Pypi and can be installed using `pip`.::
@@ -18,7 +24,7 @@ django-fixtureless is registered with Pypi and can be installed using `pip`.::
     pip install django-fixtureless
 
 
-Releases and Branches:
+Releases and Branches
 -----------------
 
 The master branch is meant for release.  Upon an update to the master branch the version will increment
@@ -31,15 +37,15 @@ Development is done on branches from dev and merge via pull requests into dev.  
 fork this repo and create pull requests with additions they would like to see in the project.
 
 
-Todo:
+Todo
 -----------------
 
-1. Support MySQL
-2. Support SQLite
-3. Create a factory for creating groups of model objects
+1. Create a factory for creating groups of model objects
+2. Refactor *_autogen* methods into a class for readability.
+3. Refactor constants into a *constants.py* file for readability.
 
 
-Usage:
+Usage
 -----------------
 
 The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are
@@ -57,7 +63,7 @@ Here is an example using fixtureless.  Suppose you have a model defined as follo
 
     class User(AbstractUser):
         auth_key = models.CharField(max_length=16)
-    
+
         def __str__(self):
             if self.first_name:
                 if self.last_name:
@@ -87,14 +93,14 @@ This is what a unit test for `__str__` might look like.::
             expected = "test_first_name test_last_name's Profile"
             self.assertEqual(user.__str__(), expected)
             user.delete()
-    
+
             del(initial['last_name'])
             user = create_instance(User, **initial)
             user.save()
             expected = "test_first_name's Profile"
             self.assertEqual(user.__str__(), expected)
             user.delete()
-    
+
             del(initial['first_name'])
             user = create_instance(User, **initial)
             user.save()
@@ -129,7 +135,7 @@ Let's look at a more complex relationship.  First the models.::
         def __str__(self):
             return 'created_at: {}, amount: ${:0.2f}'.format(
                 self.created_at, self.amount/100)
-    
+
 
 We could create a `Charge` object and have access to an automatically generated `Customer` object
 due to the `ForeignKey` relationship.::
@@ -147,7 +153,7 @@ due to the `ForeignKey` relationship.::
             }
             charge = create_instance(Charge, **initial)
             charge.save()
-            
+
             customer = charge.customer
             self.assertIsNotNone(customer)
 
@@ -159,7 +165,7 @@ due to the `ForeignKey` relationship.::
             }
             customer = create_instance(Customer, **initial)
             customer.save()
-            
+
             initial = {
                 'amount': '50',
                 'customer': customer,
@@ -167,7 +173,7 @@ due to the `ForeignKey` relationship.::
             }
             charge = create_instance(Charge, **initial)
             charge.save()
-            
+
             self.assertEqual(charge.customer.se_id, customer.se_id)
-            
+
 

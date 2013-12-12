@@ -2,7 +2,6 @@ import sys
 import datetime
 from decimal import *
 
-
 from django.test import TestCase
 
 from test_app.models import ModelOne, ModelTwo

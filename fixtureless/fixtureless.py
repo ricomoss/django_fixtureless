@@ -9,6 +9,7 @@ import unicodedata as ud
 
 from django.db import models
 from django.db import connection
+from django.conf import settings
 
 PY3 = True
 if sys.version_info.major == 2:
@@ -56,7 +57,6 @@ AUTO_FIELD_NAME = 'auto_field'
 # Django does not allow these fields to be "blank" but for the purposes of
 # django-fixtureless we need to be able to generate values for these fields.
 SPECIAL_FIELDS = (BOOLEAN_FIELD_NAME, AUTO_FIELD_NAME)
-
 
 
 def _val_is_unique(val, field):
@@ -123,7 +123,7 @@ def _autogen_data_IPAddressField(instance, field):
     return '.'.join(octets)
 
 
-def _autogen_data_CharField(instance, field):
+def __autogen_data_CharField(char_set, field):
     # Use a choice if this field has them defined.
     if len(field.choices) > 0:
         return random.choice(field.choices)[0]
@@ -134,8 +134,17 @@ def _autogen_data_CharField(instance, field):
 
     val = ''
     for _ in itertools.repeat(None, str_len):
-        val += random.choice(CHARFIELD_CHARSET_UNICODE)
+        val += random.choice(char_set)
+
     return val
+
+
+def _autogen_data_CharField(instance, field):
+    # An issue with MySQL databases, which requires a manual modification
+    # to the database, prevents unicode.
+    if MYSQL:
+        return __autogen_data_CharField(CHARFIELD_CHARSET_ASCII, field)
+    return __autogen_data_CharField(CHARFIELD_CHARSET_UNICODE, field)
 
 
 def _autogen_data_TextField(instance, field):
@@ -162,9 +171,8 @@ def _autogen_data_DateField(instance, field):
 
 
 def _get_IntegerField_limits(field, connection=connection):
-    # TODO: Currently this doesn't take non-pg DB engines into account. sigh.
     conn_type = field.db_type(connection)
-    if conn_type.startswith('integer'):
+    if conn_type.startswith('integer') or conn_type.startswith('serial'):
         limits = (POSTGRES_INT_MIN, POSTGRES_INT_MAX)
     elif conn_type.startswith('bigint'):
         limits = (POSTGRES_BIGINT_MIN, POSTGRES_BIGINT_MAX)
@@ -217,8 +225,20 @@ def _autogen_data_EmailField(instance, field):
     return email_val
 
 
+def _get_db_type(instance):
+    db_name = 'default'
+    if instance._state.db is not None:
+        db_name = instance._state.db
+
+    db_backend = settings.DATABASES[db_name]['ENGINE'].split('.')[-1]
+
+    global MYSQL
+    MYSQL = db_backend == 'mysql'
+
+
 def create_instance(klass, **kwargs):
     instance = klass(**kwargs)
+    _get_db_type(instance)
     # .local_fields:
     for field in instance._meta.fields:
         field_type_name = type(field).__name__
