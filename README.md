@@ -37,7 +37,7 @@ Development is done on branches from dev and merge via pull requests into dev.  
 fork this repo and create pull requests with additions they would like to see in the project.
 
 
-Todo:
+Todo
 -----------------
 
 1. Create a factory for creating groups of model objects
@@ -45,7 +45,7 @@ Todo:
 3. Refactor constants into a *constants.py* file for readability.
 
 
-Usage:
+Usage
 -----------------
 
 The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are
