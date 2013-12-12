@@ -14,9 +14,15 @@ In django-fixtureless
     libraries will be installed globally.
 
 We use Django's test commands to execute tests on django-fixtureless.
-This command should be run from **django-fixtureless/fixtureless/tests/test_django_project**.::
+This command should be run from
+**django-fixtureless/fixtureless/tests/test_django_project**.::
 
-    $ django-admin.py test test_app.tests
+    $ django-admin.py test test_app.tests --settings=test_django_project.settings.sqlite
+    $ django-admin.py test test_app.tests --settings=test_django_project.settings.postgres
+    $ django-admin.py test test_app.tests --settings=test_django_project.settings.mysql
+
+..note::
+    It may be useful to append the *--failfast* option when running tests.
 
 Notes
 -----

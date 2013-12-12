@@ -58,13 +58,16 @@ django-fixtureless development environment.
 7.  Add the following to the end of the file
     **~/.virtualenvs/django-fixtureless/bin/postactivate**::
 
-        export DJANGO_SETTINGS_MODULE=test_django_project.settings
+        export DJANGO_SETTINGS_MODULE=test_django_project.settings.sqlite
         export PYTHONPATH=$PYTHONPATH:~/django-fixtureless/fixtureless/tests/test_django_project/test_django_project/:~/django-fixtureless/fixtureless/
 
 8.  Activate the virtualenv::
 
         $ workon django-fixtureless
 
-9.  Install the required Python libraries::
+9.  Install the required Python libraries (for Python 2.7 or
+    Python 3.3, respectively)::
 
-        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements.pip
+        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/py2.pip
+        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/py3.pip
+
