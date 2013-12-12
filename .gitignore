@@ -53,3 +53,5 @@ pylintrc
 MANIFEST
 dist/
 CHANGES.txt
+setup.cfg
+*.egg-info
