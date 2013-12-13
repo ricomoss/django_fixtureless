@@ -27,7 +27,7 @@ setup(
     packages=['fixtureless'],
     url='https://github.com/ricomoss/django-fixtureless',
     license='LICENSE.txt',
-    description='fixtureless testing utility',
+    description='Test utility for fixtureless objects in Django.',
     long_description=LONG_DESCRIPTION,
     keywords=['unittest', 'django'],
 )
