@@ -15,6 +15,7 @@ class ModelOne(models.Model):
     positive_small_integer_field = models.PositiveSmallIntegerField()
     auto_field = models.AutoField(primary_key=True)
     email_field = models.EmailField()
+    url_field = models.URLField()
 
 
 class ModelTwo(models.Model):

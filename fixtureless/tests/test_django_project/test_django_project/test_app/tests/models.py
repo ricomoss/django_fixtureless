@@ -42,6 +42,11 @@ class ModelOneTest(TestCase):
         exp = 0 <= len(self.model_one.char_field) <= 255
         self.assertTrue(exp)
 
+    def test_url_field(self):
+        self.assertIsInstance(self.model_one.url_field, self.basestring)
+        exp = 0 <= len(self.model_one.url_field) <= 255
+        self.assertTrue(exp)
+
     def test_text_field(self):
         self.assertIsInstance(self.model_one.text_field, self.basestring)
         exp = 0 <= len(self.model_one.text_field) <= 255
