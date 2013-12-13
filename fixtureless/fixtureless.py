@@ -73,6 +73,10 @@ def _val_is_unique(val, field):
     return field.model.objects.filter(**{field_name: val}).count() == 0
 
 
+def _autogen_data_URLField(instance, field):
+    return __autogen_data_CharField(CHARFIELD_CHARSET_UNICODE, field)
+
+
 def _autogen_data_ForeignKey(instance, field):
     klass = field.related.parent_model
     instance = None
