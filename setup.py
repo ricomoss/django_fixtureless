@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '0.8.1'
+version = '0.8.2'
 
 LONG_DESCRIPTION = """
 =====================================
@@ -27,7 +27,7 @@ setup(
     packages=['fixtureless'],
     url='https://github.com/ricomoss/django-fixtureless',
     license='LICENSE.txt',
-    description='fixtureless testing utility',
+    description='Test utility for fixtureless objects in Django.',
     long_description=LONG_DESCRIPTION,
-    keywords=['unittest', 'django'],
+    keywords=['unittest', 'django', 'Python 3'],
 )

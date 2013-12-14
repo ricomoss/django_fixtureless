@@ -1,7 +1,7 @@
 django-fixtureless
 ====================
 
-Fixtureless Testing Utility for Django.  (ver. 0.8.1)
+Fixtureless Testing Utility for Django.  (ver. 0.8.2)
 
 Requirements
 -----------------
@@ -41,8 +41,6 @@ Todo
 -----------------
 
 1. Create a factory for creating groups of model objects
-2. Refactor *_autogen* methods into a class for readability.
-3. Refactor constants into a *constants.py* file for readability.
 
 
 Usage
