@@ -182,11 +182,9 @@ def create_instance(klass, **kwargs):
     instance = klass(**kwargs)
     # .local_fields:
     for field in instance._meta.fields:
-        field_name = field.name
-
         # Don't autogen data that's been provided or if the field can be blank
-        if field_name not in kwargs and \
-                (not field.blank or field_name in constants.SPECIAL_FIELDS):
+        if field.name not in kwargs and \
+                (not field.blank or field.name in constants.SPECIAL_FIELDS):
             # Don't set a OneToOneField if it is the pointer to a parent
             # class in multi-table inheritance. Its fields are taken into
             # account in the instance.fields list. (instance.local_fields
@@ -194,5 +192,5 @@ def create_instance(klass, **kwargs):
             if not (isinstance(field, models.OneToOneField) and
                     isinstance(instance, field.related.parent_model)):
                 val = Generator().get_val(instance, field)
-                setattr(instance, field_name, val)
+                setattr(instance, field.name, val)
     return instance
