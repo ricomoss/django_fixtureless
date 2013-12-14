@@ -2,266 +2,197 @@ import datetime
 import decimal
 import math
 import random
-import string
-import sys
 import itertools
-import unicodedata as ud
 
 from django.db import models
 from django.db import connection
 from django.conf import settings
 
-PY3 = True
-if sys.version_info.major == 2:
-    PY3 = False
-
-DEFAULT_CHARFIELD_MAX_LEN = 255
-DEFAULT_TEXTFIELD_MAX_LEN = DEFAULT_CHARFIELD_MAX_LEN
-
-CHARFIELD_CHARSET_ASCII = string.ascii_letters + string.digits \
-    + string.punctuation + ' '
-
-# Make a subset of unicode chars to use for unicode test data.
-# Changed from 120779 to 65536 to support narrow python build
-# (brew standard for osx)
-_MAX_UNICODE = 65536
-
-_UNICODE_CHARSET_CATEGORIES = ['Lu', 'Ll', 'Pc', 'Pi', 'Pf', 'Sm', 'Sc']
-if PY3:
-    all_unicode = [chr(i) for i in range(_MAX_UNICODE)]
-    unicode_letters = [c for c in all_unicode
-                       if ud.category(c) in _UNICODE_CHARSET_CATEGORIES]
-    unicode_letters.append(' ')
-    CHARFIELD_CHARSET_UNICODE = ''.join(unicode_letters)
-else:
-    all_unicode = [unichr(i) for i in xrange(_MAX_UNICODE)]
-    unicode_letters = [c for c in all_unicode
-                       if ud.category(c) in _UNICODE_CHARSET_CATEGORIES]
-    unicode_letters.append(u' ')
-    CHARFIELD_CHARSET_UNICODE = u''.join(unicode_letters)
-
-# see http://docs.python.org/3.3/library/stdtypes.html#numeric-types-int-float-long-complex
-INTFIELD_MAX = sys.maxsize
-INTFIELD_MIN = -sys.maxsize - 1
-
-# see http://www.postgresql.org/docs/8.2/static/datatype-numeric.html
-POSTGRES_INT_MAX = 2147483647
-POSTGRES_INT_MIN = -2147483648
-POSTGRES_SMALLINT_MAX = 32767
-POSTGRES_SMALLINT_MIN = -32768
-POSTGRES_BIGINT_MAX = 9223372036854775807
-POSTGRES_BIGINT_MIN = -9223372036854775808
-
-BOOLEAN_FIELD_NAME = 'boolean_field'
-AUTO_FIELD_NAME = 'auto_field'
-# Django does not allow these fields to be "blank" but for the purposes of
-# django-fixtureless we need to be able to generate values for these fields.
-SPECIAL_FIELDS = (BOOLEAN_FIELD_NAME, AUTO_FIELD_NAME)
+import constants
 
 
-def _val_is_unique(val, field):
-    """
-    Currently only checks the field's uniqueness, not the model validation.
-    """
-    if val is None:
-        return False
+class Generator(object):
+    def get_val(self, instance, field):
+        callable_name = '_generate_{}'.format(type(field).__name__.lower())
+        func = getattr(self, callable_name)
+        val = func(instance, field)
+        if field.unique:
+            while not self._val_is_unique(val, field):
+                val = func(instance, field)
+        return val
 
-    if not field.unique:
-        return True
+    def _val_is_unique(self, val, field):
+        """
+        Currently only checks the field's uniqueness, not the model validation.
+        """
+        if val is None:
+            return False
 
-    field_name = field.name
-    return field.model.objects.filter(**{field_name: val}).count() == 0
+        if not field.unique:
+            return True
 
+        field_name = field.name
+        return field.model.objects.filter(**{field_name: val}).count() == 0
 
-def _autogen_data_URLField(instance, field):
-    return __autogen_data_CharField(CHARFIELD_CHARSET_UNICODE, field)
+    def _generate_foreignkey(self, instance, field):
+        klass = field.related.parent_model
+        instance = None
+        if not field.unique:
+            # Try to retrieve the last one
+            try:
+                instance = klass.objects.order_by('-pk')[0]
+            except IndexError:
+                instance = None
+        if field.unique or instance is None:
+            instance = create_instance(klass)
+            instance.save()
+        return instance
 
+    def _generate_onetoonefield(self, instance, field):
+        return self._generate_foreignkey(instance, field)
 
-def _autogen_data_ForeignKey(instance, field):
-    klass = field.related.parent_model
-    instance = None
-    if not field.unique:
-        # Try to retrieve the last one
-        try:
-            instance = klass.objects.order_by('-pk')[0]
-        except IndexError:
-            instance = None
-    if field.unique or instance is None:
-        instance = create_instance(klass)
-        instance.save()
-    return instance
+    def _generate_dictionaryfield(self, instance, field):
+        return {}
 
+    def _generate_decimalfield(self, instance, field):
+        len_int_part = field.max_digits - field.decimal_places
+        # Add a scaling factor here to help prevent overflowing the
+        # Decimal fields when doing summming, etc. This still won't
+        # protect tiny dec fields (1 or 2 digits before the decimal),
+        # but should cover most use cases.
+        len_int_part = int(math.floor(math.sqrt(len_int_part)))
+        max_intval = pow(10, len_int_part) - 2
+        int_part = random.randint(-max_intval, max_intval)
+        len_fractional_part = random.randint(0, field.decimal_places)
+        if len_fractional_part > 0:
+            # Turn into a string, and trim off the '0.' from the start.
+            fractional_part = str(random.random())[2:len_fractional_part+2]
+        else:
+            fractional_part = ''
+        # Val must be passed into Decimal constructor as a string,
+        # otherwise it will be rounded!
+        val = decimal.Decimal('{}.{}'.format(int_part, fractional_part))
+        return val
 
-def _autogen_data_OneToOneField(instance, field):
-    return _autogen_data_ForeignKey(instance, field)
+    def _generate_ipaddressfield(self, instance, field):
+        """ Currently only IPv4 fields. """
+        num_octets = 4
+        octets = [str(random.randint(0, 255)) for n in range(num_octets)]
+        return '.'.join(octets)
 
+    def _generate_with_char_set(self, char_set, field):
+        # Use a choice if this field has them defined.
+        if len(field.choices) > 0:
+            return random.choice(field.choices)[0]
 
-def _autogen_data_DictionaryField(instance, field):
-    return {}
+        str_len = constants.DEFAULT_CHARFIELD_MAX_LEN
+        if field.max_length is not None:
+            str_len = random.randint(0, field.max_length)
 
+        return self._iter_for_choice(str_len, char_set)
 
-def _autogen_data_DecimalField(instance, field):
-    len_int_part = field.max_digits - field.decimal_places
-    # Add a scaling factor here to help prevent overflowing the Decimal fields
-    # when doing summming, etc. This still won't protect tiny dec fields (1 or
-    # 2 digits before the decimal), but should cover most use cases.
-    len_int_part = int(math.floor(math.sqrt(len_int_part)))
-    max_intval = pow(10, len_int_part) - 2
-    int_part = random.randint(-max_intval, max_intval)
-    len_fractional_part = random.randint(0, field.decimal_places)
-    if len_fractional_part > 0:
-        # Turn into a string, and trim off the '0.' from the start.
-        fractional_part = str(random.random())[2:len_fractional_part+2]
-    else:
-        fractional_part = ''
-    # Val must be passed into Decimal constructor as a string, otherwise it
-    # will be rounded!
-    val = decimal.Decimal('{}.{}'.format(int_part, fractional_part))
-    return val
+    def _generate_charfield(self, instance, field):
+        # An issue with MySQL databases, which requires a manual modification
+        # to the database, prevents unicode.
+        if self._get_db_type(instance) == constants.MYSQL:
+            return self._generate_with_char_set(
+                constants.CHARFIELD_CHARSET_ASCII, field)
+        return self._generate_with_char_set(
+            constants.CHARFIELD_CHARSET_UNICODE, field)
 
+    def _generate_textfield(self, instance, field):
+        return self._generate_charfield(instance, field)
 
-def _autogen_data_IPAddressField(instance, field):
-    """ Currently only IPv4 fields. """
-    num_octets = 4
-    octets = [str(random.randint(0, 255)) for n in range(num_octets)]
-    return '.'.join(octets)
+    def _generate_urlfield(self, instance, field):
+        return self._generate_charfield(instance, field)
 
+    def _generate_slugfield(self, instance, field):
+        str_len = constants.DEFAULT_CHARFIELD_MAX_LEN
+        if field.max_length is not None:
+            str_len = random.randint(0, field.max_length)
 
-def __autogen_data_CharField(char_set, field):
-    # Use a choice if this field has them defined.
-    if len(field.choices) > 0:
-        return random.choice(field.choices)[0]
+        return self._iter_for_choice(
+            str_len, constants.CHARFIELD_CHARSET_ASCII)
 
-    str_len = DEFAULT_CHARFIELD_MAX_LEN
-    if field.max_length is not None:
-        str_len = random.randint(0, field.max_length)
+    def _generate_datetimefield(self, instance, field):
+        return datetime.datetime.now()
 
-    val = ''
-    for _ in itertools.repeat(None, str_len):
-        val += random.choice(char_set)
+    def _generate_datefield(self, instance, field):
+        return datetime.date.today()
 
-    return val
+    def _get_integer_limits(self, field, connection=connection):
+        conn_type = field.db_type(connection)
+        if conn_type.startswith('integer') or conn_type.startswith('serial'):
+            limits = (constants.POSTGRES_INT_MIN, constants.POSTGRES_INT_MAX)
+        elif conn_type.startswith('bigint'):
+            limits = (constants.POSTGRES_BIGINT_MIN,
+                      constants.POSTGRES_BIGINT_MAX)
+        elif conn_type.startswith('smallint'):
+            limits = (constants.POSTGRES_SMALLINT_MIN,
+                      constants.POSTGRES_SMALLINT_MAX)
+        else:
+            raise TypeError('unknown type for field {}: {}'.format(
+                field.name, conn_type))
+        return limits
 
+    def _generate_integerfield(self, instance, field):
+        limits = self._get_integer_limits(field)
+        return random.randint(*limits)
 
-def _autogen_data_CharField(instance, field):
-    # An issue with MySQL databases, which requires a manual modification
-    # to the database, prevents unicode.
-    if MYSQL:
-        return __autogen_data_CharField(CHARFIELD_CHARSET_ASCII, field)
-    return __autogen_data_CharField(CHARFIELD_CHARSET_UNICODE, field)
+    def _generate_positiveintegerfield(self, instance, field):
+        limits = self._get_integer_limits(field)
+        return random.randint(0, limits[1])
 
+    def _generate_positivesmallintegerfield(self, instance, field):
+        limits = self._get_integer_limits(field)
+        return random.randint(0, limits[1])
 
-def _autogen_data_TextField(instance, field):
-    return _autogen_data_CharField(instance, field)
+    def _generate_autofield(self, instance, field):
+        limits = self._get_integer_limits(field)
+        return random.randint(0, limits[1])
 
+    def _generate_booleanfield(self, instance, field):
+        return random.choice([True, False])
 
-def _autogen_data_SlugField(instance, field):
-    str_len = DEFAULT_CHARFIELD_MAX_LEN
-    if field.max_length is not None:
-        str_len = random.randint(0, field.max_length)
+    def _generate_emailfield(self, instance, field):
+        val_len = random.randint(1, int(field.max_length/2 - 5))
+        val = self._iter_for_choice(
+            val_len, constants.EMAIL_CHARSET)
+        val += '@'
+        val = self._iter_for_choice(
+            val_len, constants.EMAIL_CHARSET, val)
+        val += '.'
+        val = self._iter_for_choice(
+            3, constants.EMAIL_CHARSET, val)
+        return val
 
-    val = ''
-    for _ in itertools.repeat(None, str_len):
-        val += random.choice(CHARFIELD_CHARSET_ASCII)
-    return val
+    def _iter_for_choice(self, val_len, char_set, val=''):
+        for _ in itertools.repeat(None, val_len):
+            val += random.choice(char_set)
+        return val
 
-
-def _autogen_data_DateTimeField(instance, field):
-    return datetime.datetime.now()
-
-
-def _autogen_data_DateField(instance, field):
-    return datetime.date.today()
-
-
-def _get_IntegerField_limits(field, connection=connection):
-    conn_type = field.db_type(connection)
-    if conn_type.startswith('integer') or conn_type.startswith('serial'):
-        limits = (POSTGRES_INT_MIN, POSTGRES_INT_MAX)
-    elif conn_type.startswith('bigint'):
-        limits = (POSTGRES_BIGINT_MIN, POSTGRES_BIGINT_MAX)
-    elif conn_type.startswith('smallint'):
-        limits = (POSTGRES_SMALLINT_MIN, POSTGRES_SMALLINT_MAX)
-    else:
-        raise TypeError('unknown type for field {}: {}'.format(
-            field.name, conn_type))
-    return limits
-
-
-def _autogen_data_IntegerField(instance, field):
-    limits = _get_IntegerField_limits(field)
-    return random.randint(*limits)
-
-
-def _autogen_data_PositiveIntegerField(instance, field):
-    limits = _get_IntegerField_limits(field)
-    return random.randint(0, limits[1])
-
-
-def _autogen_data_PositiveSmallIntegerField(instance, field):
-    limits = _get_IntegerField_limits(field)
-    return random.randint(0, limits[1])
-
-
-def _autogen_data_AutoField(instance, field):
-    limits = _get_IntegerField_limits(field)
-    return random.randint(0, limits[1])
-
-
-def _autogen_data_BooleanField(instance, field):
-    return random.choice([True, False])
-
-
-def _autogen_data_EmailField(instance, field):
-    char_set = string.ascii_letters + string.digits
-
-    local_part = ''
-    val_len = random.randint(1, int(field.max_length/2 - 5))
-    for _ in itertools.repeat(None, val_len):
-        local_part += random.choice(char_set)
-    domain_part_1 = '@'
-    for _ in itertools.repeat(None, val_len):
-        domain_part_1 += random.choice(char_set)
-    domain_part_2 = '.'
-    for _ in itertools.repeat(None, 3):
-        domain_part_2 += random.choice(char_set)
-    email_val = '{}{}{}'.format(local_part, domain_part_1, domain_part_2)
-    return email_val
-
-
-def _get_db_type(instance):
-    db_name = 'default'
-    if instance._state.db is not None:
-        db_name = instance._state.db
-
-    db_backend = settings.DATABASES[db_name]['ENGINE'].split('.')[-1]
-
-    global MYSQL
-    MYSQL = db_backend == 'mysql'
+    def _get_db_type(self, instance):
+        db_name = 'default'
+        if instance._state.db is not None:
+            db_name = instance._state.db
+        return settings.DATABASES[db_name]['ENGINE'].split('.')[-1]
 
 
 def create_instance(klass, **kwargs):
     instance = klass(**kwargs)
-    _get_db_type(instance)
     # .local_fields:
     for field in instance._meta.fields:
-        field_type_name = type(field).__name__
         field_name = field.name
 
         # Don't autogen data that's been provided or if the field can be blank
         if field_name not in kwargs and \
-                (not field.blank or field_name in SPECIAL_FIELDS):
+                (not field.blank or field_name in constants.SPECIAL_FIELDS):
             # Don't set a OneToOneField if it is the pointer to a parent
             # class in multi-table inheritance. Its fields are taken into
             # account in the instance.fields list. (instance.local_fields
             # skips these.)
             if not (isinstance(field, models.OneToOneField) and
                     isinstance(instance, field.related.parent_model)):
-                callable_name = '_autogen_data_{}'.format(field_type_name)
-                func = globals()[callable_name]
-                val = func(instance, field)
-                if field.unique:
-                    while not _val_is_unique(val, field):
-                        val = func(instance, field)
+                val = Generator().get_val(instance, field)
                 setattr(instance, field_name, val)
     return instance
