@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '0.8.1'
+version = '0.8.2'
 
 LONG_DESCRIPTION = """
 =====================================
@@ -29,5 +29,5 @@ setup(
     license='LICENSE.txt',
     description='Test utility for fixtureless objects in Django.',
     long_description=LONG_DESCRIPTION,
-    keywords=['unittest', 'django'],
+    keywords=['unittest', 'django', 'Python 3'],
 )
