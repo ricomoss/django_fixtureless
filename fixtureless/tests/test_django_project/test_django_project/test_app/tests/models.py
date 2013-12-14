@@ -1,4 +1,3 @@
-import sys
 import datetime
 from decimal import *
 
@@ -6,11 +5,7 @@ from django.test import TestCase
 
 from test_app.models import ModelOne, ModelTwo
 import fixtureless
-from fixtureless import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX
-
-PY3 = True
-if sys.version_info.major == 2:
-    PY3 = False
+from constants import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX, PY3
 
 
 class ModelOneTest(TestCase):
