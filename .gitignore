@@ -41,13 +41,12 @@ pip-log.txt
 # Translations
 *.mo
 
-.project
-
 *.sqlite3
 
 #LocalFiles
 pylintrc
 .ropeproject/
+*_local.py
 
 # pypi files
 MANIFEST
