@@ -36,8 +36,8 @@ Git usage
 Master branch is always considered live. Never push to master, if it is
 not ready for live at that moment.
 
-Create your own remote branch from the dev branch all commits. Then create
-a Pull Request on github to the respective branch on the ricomoss github repo.
+Create your own remote branch from the dev branch for all commits. Then create
+a Pull Request on github to the dev branch on the ricomoss github repo.
 
 Tests
 -----------------------
