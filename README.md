@@ -1,7 +1,7 @@
 django-fixtureless
 ====================
 
-Fixtureless Testing Utility for Django.  (ver. 0.8.2)
+Fixtureless Testing Utility for Django.  (ver. 1.0.0)
 
 Requirements
 -----------------
@@ -27,26 +27,30 @@ django-fixtureless is registered with Pypi and can be installed using `pip`.
 Releases and Branches
 -----------------
 
-The master branch is meant for release.  Upon an update to the master branch the version will increment
-according to the format: (major).(minor).(micro)
+The master branch is meant for release.  Upon an update to the master branch
+the version will increment according to the format: (major).(minor).(micro)
 
-The dev branch holds all approved updates to the django-fixtureless project until a release milestone is met,
-at which time dev will be merged into master.
+The dev branch holds all approved updates to the django-fixtureless project
+until a release milestone is met, at which time dev will be merged into master.
 
-Development is done on branches from dev and merge via pull requests into dev.  Everyone is encouraged to
-fork this repo and create pull requests with additions they would like to see in the project.
+Development is done on branches from dev and merge via pull requests into dev.
+Everyone is encouraged to fork this repo and create pull requests with
+additions they would like to see in the project.
 
 
 Motivation
 -----------------
 
-The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are
-often used to provide a set of mock data for testing purposes.  It is tedious to update all the fixtures upon a
-model update or to create a new set of fixtures if you want to test specific model parameters.  When the
-project contains a large amount of fixtures tests also begin to run slowly due to the load time.
+The purpose behind fixtureless is to provide a fast and easy way to create
+test objects in Django.  Fixtures are often used to provide a set of mock data
+for testing purposes.  It is tedious to update all the fixtures upon a model
+update or to create a new set of fixtures if you want to test specific model
+parameters.  When the project contains a large amount of fixtures tests also
+begin to run slowly due to the load time.
 
-Fixtureless is meant to bypass all this.  You can create a fixtureless object given the model, the number of
-objects you want created and an `initial` dictionary containing any specific data you want to test.
+Fixtureless is meant to bypass all this.  You can create a fixtureless object
+given the model, the number of objects you want created and an `initial`
+dictionary containing any specific data you want to test.
 
 
 API Definition
@@ -54,22 +58,25 @@ API Definition
 
 Fixtureless has two methods for use in the API.
 
-1.  The `build()` method will generate a Django model object and return the object (or list of objects).
-2.  The `create()` method is similar to `build()` but the object gets saved to the database.
-    
+1.  The `build()` method will generate a Django model object and return the
+    object (or list of objects).
+2.  The `create()` method is similar to `build()` but the object gets saved to
+    the database.
+
 Both methods expect the same arguments.
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
-    
+
     factory = Factory()
     factory.build(Charge[, count, initial])
 
 
 Usage
 -----------------
-There are several available options to use with the fixtureless factory.  Below are examples of each.
+There are several available options to use with the fixtureless factory.  Below
+are examples of each.
 
 First let's define a few Django models to use in the examples.:
 
@@ -101,7 +108,7 @@ First let's define a few Django models to use in the examples.:
 Example 1: Trivial Case - A single object:
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
@@ -111,22 +118,23 @@ Example 1: Trivial Case - A single object:
 Example 2: Model w/ single count:
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
     count = 1
     charge = factory.create(Charge, count)
-    
-    
+
+
 Note:
 
-    Example 1 and Example 2 will both yield a single generated charge object with random data.
+    Example 1 and Example 2 will both yield a single generated charge object
+    with random data.
 
 Example 3: Model w/ multiple count::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
@@ -136,12 +144,13 @@ Example 3: Model w/ multiple count::
 
 Note:
 
-    Example 3 will a list with `count` charge objects.  All will be unique and contain random data.
+    Example 3 will a list with *count* charge objects.  All will be unique and
+    contain random data.
 
 Example 4: Model w/ single count and initial::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
@@ -155,14 +164,15 @@ Example 4: Model w/ single count and initial::
 
 Note:
 
-    Example 4 will create a single charge object with the `amount` and `description` fields containing
-    the data provided in the `initial` dictionary.  It should be emphasized that you must provide a `count`
-    if you intend to provide `initial` data.
+    Example 4 will create a single charge object with the *amount* and
+    *description* fields containing the data provided in the *initial*
+    dictionary.  It should be emphasized that you must provide a *count* if you
+    intend to provide *initial* data.
 
 Example 5: Model w/ multi count and single initial::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
@@ -175,13 +185,14 @@ Example 5: Model w/ multi count and single initial::
 
 Note:
 
-    Example 5 will create two unique charge objects passed back in the `charges` list.  Both objects will
-    contain the `initial` data.  All other fields will be randomly generated.
+    Example 5 will create two unique charge objects passed back in the
+    *charges* list.  Both objects will contain the *initial* data.  All other
+    fields will be randomly generated.
 
 Example 6: Model /w multi count and multi intial::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
@@ -199,14 +210,15 @@ Example 6: Model /w multi count and multi intial::
 
 Note:
 
-    Example 6 will create two unique `Charge` objects passed back in the `charges` list.  The first item
-    will contain `initial1` data and the second will contain `initial2` data.  It should be emphasized
-    that `len(initial_list) == count` should evaluate `True`.
-    
+    Example 6 will create two unique *Charge* objects passed back in the
+    *charges* list.  The first item will contain *initial1* data and the second
+    will contain *initial2* data.  It should be emphasized that
+    *len(initial_list) == count* should evaluate *True*.
+
 Example 7: Multi Model Trivial::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge, Customer
 
     factory = Factory()
@@ -214,13 +226,14 @@ Example 7: Multi Model Trivial::
 
 Note:
 
-    Example 7 will create a `Charge` object and a `Customer` object passed back in the `objs` list.
-    It should be empahsized that each object should be passed in as it's own `tuple` object.
-    
+    Example 7 will create a *Charge* object and a *Customer* object passed back
+    in the *objs* list.  It should be empahsized that each object should be
+    passed in as it's own *tuple* object.
+
 Example 8: Multi Model w/ counts::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge, Customer
 
     factory = Factory()
@@ -231,13 +244,13 @@ Example 8: Multi Model w/ counts::
 
 Note:
 
-    Example 8 will create a `Charge` object followed by two `Customer` objects passed back in the
-    `objs` list.
-    
+    Example 8 will create a *Charge* object followed by two *Customer* objects
+    passed back in the *objs* list.
+
 Example 9: Multi Model w/ counts and initial::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
@@ -256,13 +269,14 @@ Example 9: Multi Model w/ counts and initial::
 
 Note:
 
-    Example 9 will create two `Charge` objects with `initial1` data followed by three `Customer` objects
-    with `initial2` data passed back in the `objs` list.
+    Example 9 will create two *Charge* objects with *initial1* data followed by
+    three *Customer* objects with *initial2* data passed back in the *objs*
+    list.
 
 Example 10: Multi Model w/ counts and multi initial::
 
     from fixtureless import Factory
-    
+
     from my_app.models import Charge
 
     factory = Factory()
@@ -295,5 +309,5 @@ Example 10: Multi Model w/ counts and multi initial::
 
 Note:
 
-    Example 10 will create two `Charge` objects one for each `initia1_x` followed by three `Customer` objects
-    one for each `initial2_x`.
+    Example 10 will create two *Charge* objects one for each *initia1_x*
+    followed by three *Customer* objects one for each *initial2_x*.
