@@ -8,7 +8,7 @@ from django.db import models
 from django.db import connection
 from django.conf import settings
 
-import constants
+from fixtureless import constants
 
 
 class Generator(object):
@@ -120,8 +120,8 @@ class Generator(object):
     def _generate_datefield(self, instance, field):
         return datetime.date.today()
 
-    def _get_integer_limits(self, field, connection=connection):
-        conn_type = field.db_type(connection)
+    def _get_integer_limits(self, field, connection_obj=connection):
+        conn_type = field.db_type(connection_obj)
         if conn_type.startswith('integer') or conn_type.startswith('serial'):
             limits = (constants.POSTGRES_INT_MIN, constants.POSTGRES_INT_MAX)
         elif conn_type.startswith('bigint'):

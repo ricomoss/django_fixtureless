@@ -4,13 +4,13 @@ from decimal import *
 from django.test import TestCase
 
 from test_app.models import ModelOne, ModelTwo
-import fixtureless
+from generator import create_instance
 from constants import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX, PY3
 
 
 class ModelOneTest(TestCase):
     def setUp(self):
-        self.model_one = fixtureless.create_instance(ModelOne)
+        self.model_one = create_instance(ModelOne)
 
         if PY3:
             self.basestring = (str, bytes)
@@ -97,9 +97,9 @@ class ModelOneTest(TestCase):
 
 class ModelTwoTest(TestCase):
     def setUp(self):
-        self.model_one = fixtureless.create_instance(ModelOne)
-        self.model_two_rand = fixtureless.create_instance(ModelTwo)
-        self.model_two_kwarg = fixtureless.create_instance(
+        self.model_one = create_instance(ModelOne)
+        self.model_two_rand = create_instance(ModelTwo)
+        self.model_two_kwarg = create_instance(
             ModelTwo, foreign_key=self.model_one)
 
     def test_foreign_key(self):

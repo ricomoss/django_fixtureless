@@ -1,7 +1,7 @@
 django-fixtureless
 ====================
 
-Fixtureless Testing Utility for Django.  (ver. 0.8.2)
+Fixtureless Testing Utility for Django.  (ver. 1.0.5)
 
 Requirements
 -----------------
@@ -14,12 +14,12 @@ Supports
 
 1. PostgreSQL
 2. SQLite
-3. MySQL
+3. MySQL (Only Python 2.7+)
 
 Install
 -----------------
 
-django-fixtureless is registered with Pypi and can be installed using `pip`.::
+django-fixtureless is registered with Pypi and can be installed using `pip`.
 
     pip install django-fixtureless
 
@@ -27,87 +27,58 @@ django-fixtureless is registered with Pypi and can be installed using `pip`.::
 Releases and Branches
 -----------------
 
-The master branch is meant for release.  Upon an update to the master branch the version will increment
-according to the format: (major).(minor).(micro)
+The master branch is meant for release.  Upon an update to the master branch
+the version will increment according to the format: (major).(minor).(micro)
 
-The dev branch holds all approved updates to the django-fixtureless project until a release milestone is met,
-at which time dev will be merged into master.
+The dev branch holds all approved updates to the django-fixtureless project
+until a release milestone is met, at which time dev will be merged into master.
 
-Development is done on branches from dev and merge via pull requests into dev.  Everyone is encouraged to
-fork this repo and create pull requests with additions they would like to see in the project.
+Development is done on branches from dev and merge via pull requests into dev.
+Everyone is encouraged to fork this repo and create pull requests with
+additions they would like to see in the project.
 
 
-Todo
+Motivation
 -----------------
 
-1. Create a factory for creating groups of model objects
+The purpose behind fixtureless is to provide a fast and easy way to create
+test objects in Django.  Fixtures are often used to provide a set of mock data
+for testing purposes.  It is tedious to update all the fixtures upon a model
+update or to create a new set of fixtures if you want to test specific model
+parameters.  When the project contains a large amount of fixtures tests also
+begin to run slowly due to the load time.
+
+Fixtureless is meant to bypass all this.  You can create a fixtureless object
+given the model, the number of objects you want created and an `initial`
+dictionary containing any specific data you want to test.
+
+
+API Definition
+-----------------
+
+Fixtureless has two methods for use in the API.
+
+1.  The `build()` method will generate a Django model object and return the
+    object (or list of objects).
+2.  The `create()` method is similar to `build()` but the object gets saved to
+    the database.
+
+Both methods expect the same arguments.
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    factory.build(Charge[, count, initial])
 
 
 Usage
 -----------------
+There are several available options to use with the fixtureless factory.  Below
+are examples of each.
 
-The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are
-often used to provide a set of mock data for testing purposes.  It is tedious to update all the fixtures upon a
-model update or to create a new set of fixtures if you want to test specific model parameters.  When the
-project contains a large amount of fixtures tests also begin to run slowly due to the load time.
-
-Fixtureless is meant to bypass all this.  You can create a fixtureless object given the model and `**kwargs`
-containing any specific data you want to test.
-
-Here is an example using fixtureless.  Suppose you have a model defined as follows.::
-
-    from django.db import models
-    from django.contrib.auth.models import AbstractUser
-
-    class User(AbstractUser):
-        auth_key = models.CharField(max_length=16)
-
-        def __str__(self):
-            if self.first_name:
-                if self.last_name:
-                    return "{0} {1}'s Profile".format(
-                        self.first_name, self.last_name)
-                else:
-                    return "{0}'s Profile".format(self.first_name)
-            else:
-                return "{0}'s Profile".format(self.username)
-
-
-This is what a unit test for `__str__` might look like.::
-
-    from django.test import TestCase
-    from fixtureless.fixtureless import create_instance
-    from my_app.models import User
-
-    class UserTest(TestCase):
-        def test_str(self):
-            initial = {
-                'username': 'test_username',
-                'first_name': 'test_first_name',
-                'last_name': 'test_last_name',
-            }
-            user = create_instance(User, **initial)
-            user.save()
-            expected = "test_first_name test_last_name's Profile"
-            self.assertEqual(user.__str__(), expected)
-            user.delete()
-
-            del(initial['last_name'])
-            user = create_instance(User, **initial)
-            user.save()
-            expected = "test_first_name's Profile"
-            self.assertEqual(user.__str__(), expected)
-            user.delete()
-
-            del(initial['first_name'])
-            user = create_instance(User, **initial)
-            user.save()
-            expected = "test_username's Profile"
-            self.assertEqual(user.__str__(), expected)
-            user.delete()
-
-
-Let's look at a more complex relationship.  First the models.::
+First let's define a few Django models to use in the examples.:
 
     from django.db import models
     from my_app import constants
@@ -134,44 +105,209 @@ Let's look at a more complex relationship.  First the models.::
             return 'created_at: {}, amount: ${:0.2f}'.format(
                 self.created_at, self.amount/100)
 
+Example 1: Trivial Case - A single object:
 
-We could create a `Charge` object and have access to an automatically generated `Customer` object
-due to the `ForeignKey` relationship.::
+    from fixtureless import Factory
 
-    from django.test import TestCase
-    from fixtureless.fixtureless import create_instance
-    from my_app.constants import CURRENCY_USD
+    from my_app.models import Charge
+
+    factory = Factory()
+    charge = factory.create(Charge)
+
+
+Example 2: Model w/ single count:
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    count = 1
+    charge = factory.create(Charge, count)
+
+
+Note:
+
+    Example 1 and Example 2 will both yield a single generated charge object
+    with random data.
+
+Example 3: Model w/ multiple count::
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    count = 5
+    charges = factory.create(Charge, count)
+
+
+Note:
+
+    Example 3 will a list with *count* charge objects.  All will be unique and
+    contain random data.
+
+Example 4: Model w/ single count and initial::
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    count = 1
+    initial = {
+        'amount': '50',
+        'description': 'test description',
+    }
+    charge = factory.create(Charge, count, initial)
+
+
+Note:
+
+    Example 4 will create a single charge object with the *amount* and
+    *description* fields containing the data provided in the *initial*
+    dictionary.  It should be emphasized that you must provide a *count* if you
+    intend to provide *initial* data.
+
+Example 5: Model w/ multi count and single initial::
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    count = 2
+    initial = {
+        'amount': '50',
+        'description': 'test description',
+    }
+    charges = factory.create(Charge, count, initial)
+
+Note:
+
+    Example 5 will create two unique charge objects passed back in the
+    *charges* list.  Both objects will contain the *initial* data.  All other
+    fields will be randomly generated.
+
+Example 6: Model /w multi count and multi intial::
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    count = 2
+    initial1 = {
+        'amount': '50',
+        'description': 'test description 1',
+    }
+    initial2 = {
+        'amount': '150',
+        'description': 'test description 2',
+    }
+    initial_list = [initial1, initial2]
+    charges = factory.create(Charge, count, initial_list)
+
+Note:
+
+    Example 6 will create two unique *Charge* objects passed back in the
+    *charges* list.  The first item will contain *initial1* data and the second
+    will contain *initial2* data.  It should be emphasized that
+    *len(initial_list) == count* should evaluate *True*.
+
+Example 7: Multi Model Trivial::
+
+    from fixtureless import Factory
+
     from my_app.models import Charge, Customer
 
-    class ChargeTest(TestCase):
-        def test_create_charge_only(self):
-            initial = {
-                'amount': '50',
-                'description': 'test description',
-            }
-            charge = create_instance(Charge, **initial)
-            charge.save()
+    factory = Factory()
+    objs = factory.create((Charge, ), (Customer, ))
 
-            customer = charge.customer
-            self.assertIsNotNone(customer)
+Note:
 
-        def test_create_charge_with_customer(self):
-            initial = {
-                'se_id': '1',
-                'uuid': 'customer',
-                'email': 'test@example.com',
-            }
-            customer = create_instance(Customer, **initial)
-            customer.save()
+    Example 7 will create a *Charge* object and a *Customer* object passed back
+    in the *objs* list.  It should be empahsized that each object should be
+    passed in as it's own *tuple* object.
 
-            initial = {
-                'amount': '50',
-                'customer': customer,
-                'description': 'test description',
-            }
-            charge = create_instance(Charge, **initial)
-            charge.save()
+Example 8: Multi Model w/ counts::
 
-            self.assertEqual(charge.customer.se_id, customer.se_id)
+    from fixtureless import Factory
 
+    from my_app.models import Charge, Customer
 
+    factory = Factory()
+    count1 = 1
+    count2 = 2
+    args = ((Charge, count1), (Customer, count2))
+    objs = factory.create(*args)
+
+Note:
+
+    Example 8 will create a *Charge* object followed by two *Customer* objects
+    passed back in the *objs* list.
+
+Example 9: Multi Model w/ counts and initial::
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    count1 = 2
+    count2 = 3
+    initial1 = {
+        'amount': '50',
+        'description': 'test description 1',
+    }
+    initial2 = {
+        'account_balance': '10',
+        'email': 'test@example.com',
+    }
+    args = ((Charge, count1, initial1), (Customer, count2, initial2))
+    objs = factory.create(*args)
+
+Note:
+
+    Example 9 will create two *Charge* objects with *initial1* data followed by
+    three *Customer* objects with *initial2* data passed back in the *objs*
+    list.
+
+Example 10: Multi Model w/ counts and multi initial::
+
+    from fixtureless import Factory
+
+    from my_app.models import Charge
+
+    factory = Factory()
+    count1 = 2
+    count2 = 3
+    initial1_1 = {
+        'amount': '50',
+        'description': 'test description 1',
+    }
+    initial1_2 = {
+        'amount': '150',
+        'description': 'test description 2',
+    }
+    initial2_1 = {
+        'account_balance': '10',
+        'email': 'test@example.com',
+    }
+    initial2_2 = {
+        'account_balance': '150',
+        'email': 'test2@example.com',
+    }
+    initial2_3 = {
+        'account_balance': '250',
+        'email': 'test3@example.com',
+    }
+    initial1_list = [initial1_1, initial1_2]
+    initial2_list = [initial2_1, initial2_2, initial2_3]
+    args = ((Charge, count1, initial1_list), (Customer, count2, initial2_list))
+    objs = factory.create(*args)
+
+Note:
+
+    Example 10 will create two *Charge* objects one for each *initia1_x*
+    followed by three *Customer* objects one for each *initial2_x*.
