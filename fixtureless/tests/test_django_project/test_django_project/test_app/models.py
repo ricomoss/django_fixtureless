@@ -22,4 +22,4 @@ class ModelTwo(models.Model):
     foreign_key = models.ForeignKey(ModelOne, related_name='modeltwo_fk')
     one_to_one = models.OneToOneField(
         ModelOne, related_name='modeltwo_one2one')
-
+    char_field = models.CharField(max_length=20)
