@@ -8,7 +8,7 @@ from django.db import models
 from django.db import connection
 from django.conf import settings
 
-import constants
+from fixtureless import constants
 
 
 class Generator(object):

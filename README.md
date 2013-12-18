@@ -1,7 +1,7 @@
 django-fixtureless
 ====================
 
-Fixtureless Testing Utility for Django.  (ver. 1.0.0)
+Fixtureless Testing Utility for Django.  (ver. 1.0.5)
 
 Requirements
 -----------------

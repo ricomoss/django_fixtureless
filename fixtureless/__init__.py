@@ -1,1 +1,1 @@
-from factory import Factory
+from fixtureless.factory import Factory

@@ -3,9 +3,9 @@ import inspect
 
 from django.db.models import Model
 
-import exceptions
-from generator import create_instance
-from utils import list_get
+from fixtureless import exceptions
+from fixtureless.generator import create_instance
+from fixtureless.utils import list_get
 
 
 class Factory(object):
