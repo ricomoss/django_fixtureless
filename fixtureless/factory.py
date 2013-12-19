@@ -50,7 +50,9 @@ class Factory(object):
             obj.save()
         objs.append(obj)
 
-    def _handle_build(self, *args, objs=None, create=False):
+    def _handle_build(self, *args, **kwargs):
+        objs = kwargs.get('objs')
+        create = kwargs.get('create', False)
         model, count, kwargs = self._resolve_args(*args)
         if isinstance(kwargs, (list, tuple)):
             for sub_kwargs in kwargs:
