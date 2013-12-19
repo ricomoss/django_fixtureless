@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from utils import list_get
+from fixtureless.utils import list_get
 
 
 class ListGetTest(TestCase):

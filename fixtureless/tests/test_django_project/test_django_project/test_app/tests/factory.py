@@ -2,8 +2,8 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from factory import Factory
-from exceptions import InvalidArguments
+from fixtureless import Factory
+from fixtureless.exceptions import InvalidArguments
 from test_app.models import ModelOne, ModelTwo
 
 
@@ -481,7 +481,7 @@ class FactoryTest(TestCase):
         self.assertEqual(len(models), count2)
 
     # Multi Model w/ multi count and multi kwargs
-    def test_build_with_multi_model_and_multi_count_and_multi_kwargs(self):
+    def test_create_with_multi_model_and_multi_count_and_multi_kwargs(self):
         models = ModelOne.objects.all()
         self.assertEqual(len(models), 0)
         models = ModelTwo.objects.all()

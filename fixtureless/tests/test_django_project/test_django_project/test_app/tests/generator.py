@@ -4,8 +4,8 @@ from decimal import *
 from django.test import TestCase
 
 from test_app.models import ModelOne, ModelTwo
-from generator import create_instance
-from constants import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX, PY3
+from fixtureless.generator import create_instance
+from fixtureless.constants import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX, PY3
 
 
 class ModelOneTest(TestCase):

@@ -10,7 +10,13 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+FIXTURELESS_PATH = '../../..'
+FIXTURELESS_ROOT = os.path.join(os.path.dirname(__file__), FIXTURELESS_PATH)
+sys.path.insert(0, FIXTURELESS_PATH)
 
 
 # Quick-start development settings - unsuitable for production
