@@ -70,7 +70,7 @@ Both methods expect the same arguments.
     from my_app.models import Charge
 
     factory = Factory()
-    factory.build(Charge[, count, initial])
+    factory.build(Charge[, count] | [, initial])
 
 
 Usage
@@ -144,7 +144,7 @@ Example 3: Model w/ multiple count::
 
 Note:
 
-    Example 3 will a list with *count* charge objects.  All will be unique and
+    Example 3 will a list with 5 *charge* objects.  All will be unique and
     contain random data.
 
 Example 4: Model w/ single count and initial::
@@ -154,20 +154,19 @@ Example 4: Model w/ single count and initial::
     from my_app.models import Charge
 
     factory = Factory()
-    count = 1
     initial = {
         'amount': '50',
         'description': 'test description',
     }
-    charge = factory.create(Charge, count, initial)
+    charge = factory.create(Charge, initial)
 
 
 Note:
 
     Example 4 will create a single charge object with the *amount* and
     *description* fields containing the data provided in the *initial*
-    dictionary.  It should be emphasized that you must provide a *count* if you
-    intend to provide *initial* data.
+    dictionary.  It should be emphasized that you must provide either *count*
+    or *initial* data.
 
 Example 5: Model w/ multi count and single initial::
 
@@ -181,13 +180,16 @@ Example 5: Model w/ multi count and single initial::
         'amount': '50',
         'description': 'test description',
     }
-    charges = factory.create(Charge, count, initial)
+    initial_list = list()
+    for _ in itertools.repeat(None, count):
+        initial_list.append(initial)
+    charges = factory.create(Charge, initial_list)
 
 Note:
 
     Example 5 will create two unique charge objects passed back in the
-    *charges* list.  Both objects will contain the *initial* data.  All other
-    fields will be randomly generated.
+    *charges* list.  Both objects will contain the same *initial* data.  All
+    other fields will be randomly generated.
 
 Example 6: Model /w multi count and multi intial::
 
@@ -196,7 +198,6 @@ Example 6: Model /w multi count and multi intial::
     from my_app.models import Charge
 
     factory = Factory()
-    count = 2
     initial1 = {
         'amount': '50',
         'description': 'test description 1',
@@ -206,14 +207,13 @@ Example 6: Model /w multi count and multi intial::
         'description': 'test description 2',
     }
     initial_list = [initial1, initial2]
-    charges = factory.create(Charge, count, initial_list)
+    charges = factory.create(Charge, initial_list)
 
 Note:
 
     Example 6 will create two unique *Charge* objects passed back in the
     *charges* list.  The first item will contain *initial1* data and the second
-    will contain *initial2* data.  It should be emphasized that
-    *len(initial_list) == count* should evaluate *True*.
+    will contain *initial2* data.
 
 Example 7: Multi Model Trivial::
 
@@ -260,11 +260,17 @@ Example 9: Multi Model w/ counts and initial::
         'amount': '50',
         'description': 'test description 1',
     }
+    initial_list1 = list()
+    for _ in itertools.repeat(None, count1):
+        initial_list.append(initial1)
     initial2 = {
         'account_balance': '10',
         'email': 'test@example.com',
     }
-    args = ((Charge, count1, initial1), (Customer, count2, initial2))
+    initial_list2 = list()
+    for _ in itertools.repeat(None, count2):
+        initial_list2.append(initial)
+    args = ((Charge, initial_list1), (Customer, initial_list2))
     objs = factory.create(*args)
 
 Note:
@@ -304,10 +310,10 @@ Example 10: Multi Model w/ counts and multi initial::
     }
     initial1_list = [initial1_1, initial1_2]
     initial2_list = [initial2_1, initial2_2, initial2_3]
-    args = ((Charge, count1, initial1_list), (Customer, count2, initial2_list))
+    args = ((Charge, initial1_list), (Customer, initial2_list))
     objs = factory.create(*args)
 
 Note:
 
-    Example 10 will create two *Charge* objects one for each *initia1_x*
-    followed by three *Customer* objects one for each *initial2_x*.
+    Example 10 will create two *Charge* objects, one for each *initia1_x*,
+    followed by three *Customer* objects, one for each *initial2_x*.
