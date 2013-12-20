@@ -9,12 +9,8 @@ from fixtureless.utils import list_get
 
 
 class Factory(object):
-    def _verify_kwargs(self, vals, count):
+    def _verify_kwargs(self, vals):
         if isinstance(vals, (list, tuple)):
-            if count != len(vals):
-                msg = 'The fixtureless factory cannot build {} objects with' \
-                      ' {} kwargs values.'.format(count, len(vals))
-                raise exceptions.InvalidArguments(msg)
             for val in vals:
                 if isinstance(val, dict) or val is None:
                     continue
@@ -26,6 +22,20 @@ class Factory(object):
                   ' and was given type {}'.format(type(vals))
             raise exceptions.InvalidArguments(msg)
 
+    def _handle_second_arg(self, *args):
+        sec_arg = list_get(args, 1)
+        count = 1
+        kwargs = None
+        if isinstance(sec_arg, int):
+            count = sec_arg
+        elif isinstance(sec_arg, (list, tuple)):
+            kwargs = sec_arg
+            count = len(kwargs)
+        elif isinstance(sec_arg, dict):
+            kwargs = sec_arg
+        return kwargs, count
+
+
     def _resolve_args(self, *args):
         try:
             if inspect.isclass(args[0]) and issubclass(args[0], Model):
@@ -36,9 +46,8 @@ class Factory(object):
             msg = 'The fixtureless factory expects a Django model ({}) as' \
                   ' the first argument.'.format(type(Model))
             raise exceptions.InvalidArguments(msg)
-        count = list_get(args, 1, 1)
-        kwargs = list_get(args, 2)
-        self._verify_kwargs(kwargs, count)
+        kwargs, count = self._handle_second_arg(*args)
+        self._verify_kwargs(kwargs)
         return model, count, kwargs
 
     def _build_instance(self, model, kwargs, objs, create):
@@ -50,7 +59,9 @@ class Factory(object):
             obj.save()
         objs.append(obj)
 
-    def _handle_build(self, *args, objs=None, create=False):
+    def _handle_build(self, *args, **kwargs):
+        objs = kwargs.get('objs')
+        create = kwargs.get('create', False)
         model, count, kwargs = self._resolve_args(*args)
         if isinstance(kwargs, (list, tuple)):
             for sub_kwargs in kwargs:
