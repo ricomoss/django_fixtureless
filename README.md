@@ -67,10 +67,10 @@ Both methods expect the same arguments.
 
     from fixtureless import Factory
 
-    from my_app.models import Charge
+    from my_app.models import MyModel
 
     factory = Factory()
-    factory.build(Charge[, count] | [, initial])
+    factory.build(MyModel[, count] | [, initial])
 
 
 Usage
