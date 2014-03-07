@@ -68,6 +68,6 @@ django-fixtureless development environment.
 9.  Install the required Python libraries (for Python 2.7 or
     Python 3.3, respectively)::
 
-        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/py2.pip
-        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/py3.pip
+        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/p2.pip
+        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/p3.pip
 

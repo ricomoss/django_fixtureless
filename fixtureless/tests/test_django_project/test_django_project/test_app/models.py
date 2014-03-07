@@ -16,6 +16,11 @@ class ModelOne(models.Model):
     auto_field = models.AutoField(primary_key=True)
     email_field = models.EmailField()
     url_field = models.URLField()
+    try:
+        from timezone_field import TimeZoneField
+        timezone_field = TimeZoneField()
+    except ImportError:
+        pass
 
 
 class ModelTwo(models.Model):

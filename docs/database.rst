@@ -57,7 +57,7 @@ MySQL
 
 2.  Log on to the mysql server and configure the new database.::
 
-        $ mysql -u root -p '<your password>'
+        $ mysql -u root -p
         mysql> CREATE DATABASE test_django_project_db;
         mysql> CREATE USER test_user@localhost;
         mysql> GRANT ALL ON test_django_project_db.* TO test_user@localhost;
