@@ -16,7 +16,7 @@ class Generator(object):
         callable_name = '_generate_{}'.format(type(field).__name__.lower())
         try:
             func = getattr(self, callable_name)
-        except AttributeError:
+        except ImportError:
             msg = 'fixtureless does not support the field type: {}'.format(
                 type(field).__name__)
             raise AttributeError(msg)
@@ -40,10 +40,7 @@ class Generator(object):
         return field.model.objects.filter(**{field_name: val}).count() == 0
 
     def _generate_timezonefield(self, instance, field):
-        try:
-            import pytz
-        except ImportError:
-            raise AttributeError
+        import pytz
         return pytz.UTC
 
 
