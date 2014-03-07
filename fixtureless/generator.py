@@ -14,7 +14,12 @@ from fixtureless import constants
 class Generator(object):
     def get_val(self, instance, field):
         callable_name = '_generate_{}'.format(type(field).__name__.lower())
-        func = getattr(self, callable_name)
+        try:
+            func = getattr(self, callable_name)
+        except ImportError:
+            msg = 'fixtureless does not support the field type: {}'.format(
+                type(field).__name__)
+            raise AttributeError(msg)
         val = func(instance, field)
         if field.unique:
             while not self._val_is_unique(val, field):
@@ -33,6 +38,11 @@ class Generator(object):
 
         field_name = field.name
         return field.model.objects.filter(**{field_name: val}).count() == 0
+
+    def _generate_timezonefield(self, instance, field):
+        import pytz
+        return pytz.UTC
+
 
     def _generate_foreignkey(self, instance, field):
         klass = field.related.parent_model
