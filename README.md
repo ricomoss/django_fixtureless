@@ -27,6 +27,7 @@ Supports
 1. PostgreSQL
 2. SQLite
 3. MySQL (Only Python 2.7+)
+4. django-timezone-field (As of ver. 1.2.0)
 
 Install
 -----------------
