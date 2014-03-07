@@ -1,7 +1,19 @@
 django-fixtureless
 ====================
 
-Fixtureless Testing Utility for Django.  (ver. 1.1.0)
+Fixtureless Testing Utility for Django.  (ver. 1.2.0)
+
+The purpose behind fixtureless is to provide a fast and easy way to create
+test objects in Django.  Fixtures are often used to provide a set of mock data
+for testing purposes.  It is tedious to update all the fixtures upon a model
+update or to create a new set of fixtures if you want to test specific model
+parameters.  When the project contains a large amount of fixtures tests also
+begin to run slowly due to the load time.
+
+Fixtureless is meant to bypass all this.  You can create a fixtureless object
+given the model, the number of objects you want created and an `initial`
+dictionary containing any specific data you want to test.
+
 
 Requirements
 -----------------
@@ -38,21 +50,6 @@ Everyone is encouraged to fork this repo and create pull requests with
 additions they would like to see in the project.
 
 
-Motivation
------------------
-
-The purpose behind fixtureless is to provide a fast and easy way to create
-test objects in Django.  Fixtures are often used to provide a set of mock data
-for testing purposes.  It is tedious to update all the fixtures upon a model
-update or to create a new set of fixtures if you want to test specific model
-parameters.  When the project contains a large amount of fixtures tests also
-begin to run slowly due to the load time.
-
-Fixtureless is meant to bypass all this.  You can create a fixtureless object
-given the model, the number of objects you want created and an `initial`
-dictionary containing any specific data you want to test.
-
-
 API Definition
 -----------------
 
@@ -67,10 +64,10 @@ Both methods expect the same arguments.
 
     from fixtureless import Factory
 
-    from my_app.models import Charge
+    from my_app.models import MyModel
 
     factory = Factory()
-    factory.build(Charge[, count] | [, initial])
+    factory.build(MyModel[, count] | [, initial])
 
 
 Usage
