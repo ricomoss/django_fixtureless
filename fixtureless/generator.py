@@ -156,10 +156,6 @@ class Generator(object):
                 field.name, conn_type))
         return limits
 
-    def _generate_integerrangefield(self, instance, field):
-        print(field)
-        return 1
-
     def _generate_integerfield(self, instance, field):
         limits = self._get_integer_limits(field)
         return random.randint(*limits)
