@@ -64,6 +64,12 @@ class Generator(object):
     def _generate_dictionaryfield(self, instance, field):
         return {}
 
+    def _generate_integerrangefield(self, instance, field):
+        return random.randint(field.min_value, field.max_value)
+
+    def _generate_storefield(self, instance, field):
+        return self._generate_dictionaryfield(instance, field)
+
     def _generate_decimalfield(self, instance, field):
         len_int_part = field.max_digits - field.decimal_places
         # Add a scaling factor here to help prevent overflowing the
@@ -71,6 +77,11 @@ class Generator(object):
         # protect tiny dec fields (1 or 2 digits before the decimal),
         # but should cover most use cases.
         len_int_part = int(math.floor(math.sqrt(len_int_part)))
+        if len_int_part == 0:
+            len_fractional_part = random.randint(0, field.decimal_places)
+            fractional_part = str(random.random())[2:len_fractional_part+2]
+            return decimal.Decimal('0.{}'.format(fractional_part))
+
         max_intval = pow(10, len_int_part) - 2
         int_part = random.randint(-max_intval, max_intval)
         len_fractional_part = random.randint(0, field.decimal_places)

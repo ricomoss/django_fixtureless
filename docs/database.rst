@@ -30,16 +30,14 @@ Postgres
 
 2.  Become the postgresql user, and create a proton user and database.::
 
-        .. note::
-
-            When it asks if this user should be a superuser, say yes.
-
         $ sudo su - postgres
         $ createuser test_user
         $ createdb -O test_user test_django_project_db
+        $ psql test_django_project_db
+        test_django_project_db=# ALTER USER test_user WITH SUPERUSER;
+        test_django_project_db=# CREATE EXTENSION hstore;
 
-
-3.  Edit the file **/etc/postgresql/9.1/main/pg_hba.conf** and add the
+3.  Edit the file **/etc/postgresql/9.3/main/pg_hba.conf** and add the
     following to the bottom of the file::
 
         local    all    all    trust
@@ -53,16 +51,16 @@ MySQL
 
 1.  Use your package manager to install the mysql server::
 
-        $ sudo apt-get install mysql-server python-mysqldb
+        $ sudo apt-get install mysql-server python-mysqldb libmysqlclient-dev
 
 2.  Log on to the mysql server and configure the new database.::
 
         $ mysql -u root -p
         mysql> CREATE DATABASE test_django_project_db;
         mysql> CREATE USER test_user@localhost;
-        mysql> GRANT ALL ON test_django_project_db.* TO test_user@localhost;
+        mysql> GRANT ALL ON *.* TO test_user@localhost;
 
 4.  Reload the MySQL service::
 
-        sudo service postgresql reload
+        sudo service mysql reload
 
