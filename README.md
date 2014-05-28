@@ -142,7 +142,7 @@ Example 3: Model w/ multiple count::
 
 Note:
 
-    Example 3 will a list with 5 *charge* objects.  All will be unique and
+    Example 3 will return a list with 5 *charge* objects.  All will be unique and
     contain random data.
 
 Example 4: Model w/ single count and initial::
