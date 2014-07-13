@@ -36,6 +36,10 @@ else:
 INTFIELD_MAX = sys.maxsize
 INTFIELD_MIN = -sys.maxsize - 1
 
+# see https://docs.python.org/3.4/library/sys.html#sys.float%5Finfo
+FLOATFIELD_MAX = sys.float_info.max
+FLOATFIELD_MIN = -sys.float_info.min
+
 # see http://www.postgresql.org/docs/8.2/static/datatype-numeric.html
 POSTGRES_INT_MAX = 2147483647
 POSTGRES_INT_MIN = -2147483648

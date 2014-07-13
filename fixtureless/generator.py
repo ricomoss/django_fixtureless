@@ -16,7 +16,7 @@ class Generator(object):
         callable_name = '_generate_{}'.format(type(field).__name__.lower())
         try:
             func = getattr(self, callable_name)
-        except ImportError:
+        except AttributeError:
             msg = 'fixtureless does not support the field type: {}'.format(
                 type(field).__name__)
             raise AttributeError(msg)
@@ -159,6 +159,13 @@ class Generator(object):
     def _generate_integerfield(self, instance, field):
         limits = self._get_integer_limits(field)
         return random.randint(*limits)
+
+    def _get_float_limits(self, field):
+        return constants.FLOATFIELD_MIN, constants.FLOATFIELD_MAX
+
+    def _generate_floatfield(self, instance, field):
+        limits = self._get_float_limits(field)
+        return random.uniform(*limits)
 
     def _generate_positiveintegerfield(self, instance, field):
         limits = self._get_integer_limits(field)

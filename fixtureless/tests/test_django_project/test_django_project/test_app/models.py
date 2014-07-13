@@ -21,6 +21,7 @@ class ModelOne(models.Model):
     email_field = models.EmailField()
     url_field = models.URLField()
     timezone_field = TimeZoneField()
+    float_field = models.FloatField()
 
 
 class ModelTwo(models.Model):
