@@ -1,5 +1,5 @@
 import datetime
-from decimal import *
+from decimal import Decimal
 
 from django.test import TestCase
 
@@ -100,6 +100,15 @@ class ModelOneTest(TestCase):
         domain_1, domain_2 = domain.split('.')
         exp = len(domain_2) == 3
         self.assertTrue(exp)
+
+    def test_float_field(self):
+        self.assertIsInstance(self.model_one.float_field, float)
+
+    # def test_image_field(self):
+    #     self.assertIsInstance(self.model_one.image_field, float)
+    #
+    # def test_file_field(self):
+    #     self.assertIsInstance(self.model_one.file_field, float)
 
 
 class ModelTwoTest(TestCase):

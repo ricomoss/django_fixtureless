@@ -121,6 +121,12 @@ class Generator(object):
         return self._generate_with_char_set(
             constants.CHARFIELD_CHARSET_UNICODE, field)
 
+    def _generate_imagefield(self, instance, field):
+        return self._generate_charfield(instance, field)
+
+    def _generate_filefield(self, instance, field):
+        return self._generate_charfield(instance, field)
+
     def _generate_textfield(self, instance, field):
         return self._generate_charfield(instance, field)
 

@@ -6,6 +6,7 @@ except ImportError:
 
 
 class ModelOne(models.Model):
+    image = models.ImageField()
     decimal_field = models.DecimalField(decimal_places=2, max_digits=10)
     ip_address_field = models.IPAddressField()
     boolean_field = models.BooleanField()
@@ -22,6 +23,9 @@ class ModelOne(models.Model):
     url_field = models.URLField()
     timezone_field = TimeZoneField()
     float_field = models.FloatField()
+    # image_field = models.ImageField(
+    #     upload_to='/tmp', width_field='width', height_field='height')
+    # file_field = models.FileField(upload_to='/tmp')
 
 
 class ModelTwo(models.Model):
