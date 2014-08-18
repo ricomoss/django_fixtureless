@@ -2,6 +2,7 @@ import datetime
 from decimal import Decimal
 
 from django.test import TestCase
+from django.db.models.fields.files import FieldFile, ImageFieldFile
 
 from test_app.models import ModelOne, ModelTwo
 from fixtureless.generator import create_instance
@@ -104,11 +105,11 @@ class ModelOneTest(TestCase):
     def test_float_field(self):
         self.assertIsInstance(self.model_one.float_field, float)
 
-    # def test_image_field(self):
-    #     self.assertIsInstance(self.model_one.image_field, float)
-    #
-    # def test_file_field(self):
-    #     self.assertIsInstance(self.model_one.file_field, float)
+    def test_image_field(self):
+        self.assertIsInstance(self.model_one.image_field, ImageFieldFile)
+
+    def test_file_field(self):
+        self.assertIsInstance(self.model_one.file_field, FieldFile)
 
 
 class ModelTwoTest(TestCase):

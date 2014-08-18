@@ -1,3 +1,4 @@
+import sys
 import datetime
 import decimal
 import math
@@ -7,8 +8,11 @@ import itertools
 from django.db import models
 from django.db import connection
 from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
 
 from fixtureless import constants
+
+PY3 = sys.version_info.major == 3
 
 
 class Generator(object):
@@ -226,5 +230,15 @@ def create_instance(klass, **kwargs):
             if not (isinstance(field, models.OneToOneField) and
                     isinstance(instance, field.related.parent_model)):
                 val = Generator().get_val(instance, field)
-                setattr(instance, field.name, val)
+                # Not worrying about creating file objects on disk
+                if PY3:
+                    try:
+                        setattr(instance, field.name, val)
+                    except (FileNotFoundError, OSError):
+                        pass
+                else:
+                    try:
+                        setattr(instance, field.name, val)
+                    except (IOError, OSError, SuspiciousFileOperation):
+                        pass
     return instance
