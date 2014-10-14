@@ -8,7 +8,7 @@ except ImportError:
 class ModelOne(models.Model):
     decimal_field = models.DecimalField(decimal_places=2, max_digits=10)
     ip_address_field = models.IPAddressField()
-    boolean_field = models.BooleanField()
+    boolean_field = models.BooleanField(default=False)
     char_field = models.CharField(max_length=255)
     text_field = models.TextField()
     slug_field = models.SlugField()

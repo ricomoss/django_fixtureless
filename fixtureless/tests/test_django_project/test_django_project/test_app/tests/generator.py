@@ -32,6 +32,7 @@ class ModelOneTest(TestCase):
 
     def test_boolean_field(self):
         self.assertIsInstance(self.model_one.boolean_field, bool)
+        self.assertEqual(self.model_one.boolean_field, False)
 
     def test_char_field(self):
         self.assertIsInstance(self.model_one.char_field, self.basestring)

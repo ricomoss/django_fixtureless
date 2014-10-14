@@ -7,6 +7,7 @@ import itertools
 
 from django.db import models
 from django.db import connection
+from django.db.models.fields import NOT_PROVIDED
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 
@@ -17,6 +18,8 @@ PY3 = sys.version_info.major == 3
 
 class Generator(object):
     def get_val(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         callable_name = '_generate_{}'.format(type(field).__name__.lower())
         try:
             func = getattr(self, callable_name)
