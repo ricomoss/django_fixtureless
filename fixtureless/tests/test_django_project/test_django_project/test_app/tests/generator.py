@@ -85,7 +85,8 @@ class ModelOneTest(TestCase):
             import pytz
         except ImportError:
             return
-        self.assertEqual(self.model_one.timezone_field, pytz.UTC)
+        self.assertEqual(
+            self.model_one.timezone_field, pytz.timezone('America/Denver'))
 
     def test_email_field(self):
         self.assertIsInstance(self.model_one.email_field, self.basestring)

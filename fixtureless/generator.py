@@ -18,8 +18,6 @@ PY3 = sys.version_info.major == 3
 
 class Generator(object):
     def get_val(self, instance, field):
-        if field.default != NOT_PROVIDED:
-            return field.default
         callable_name = '_generate_{}'.format(type(field).__name__.lower())
         try:
             func = getattr(self, callable_name)
@@ -48,8 +46,9 @@ class Generator(object):
 
     def _generate_timezonefield(self, instance, field):
         import pytz
+        if field.default != NOT_PROVIDED:
+            return pytz.timezone(field.default)
         return pytz.UTC
-
 
     def _generate_foreignkey(self, instance, field):
         klass = field.related.parent_model
@@ -69,15 +68,21 @@ class Generator(object):
         return self._generate_foreignkey(instance, field)
 
     def _generate_dictionaryfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         return {}
 
     def _generate_integerrangefield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         return random.randint(field.min_value, field.max_value)
 
     def _generate_storefield(self, instance, field):
         return self._generate_dictionaryfield(instance, field)
 
     def _generate_decimalfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         len_int_part = field.max_digits - field.decimal_places
         # Add a scaling factor here to help prevent overflowing the
         # Decimal fields when doing summming, etc. This still won't
@@ -104,11 +109,15 @@ class Generator(object):
 
     def _generate_ipaddressfield(self, instance, field):
         """ Currently only IPv4 fields. """
+        if field.default != NOT_PROVIDED:
+            return field.default
         num_octets = 4
         octets = [str(random.randint(0, 255)) for n in range(num_octets)]
         return '.'.join(octets)
 
     def _generate_with_char_set(self, char_set, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         # Use a choice if this field has them defined.
         if len(field.choices) > 0:
             return random.choice(field.choices)[0]
@@ -120,6 +129,8 @@ class Generator(object):
         return self._iter_for_choice(str_len, char_set)
 
     def _generate_charfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         # An issue with MySQL databases, which requires a manual modification
         # to the database, prevents unicode.
         if self._get_db_type(instance) == constants.MYSQL:
@@ -141,6 +152,8 @@ class Generator(object):
         return self._generate_charfield(instance, field)
 
     def _generate_slugfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         str_len = constants.DEFAULT_CHARFIELD_MAX_LEN
         if field.max_length is not None:
             str_len = random.randint(0, field.max_length)
@@ -149,9 +162,15 @@ class Generator(object):
             str_len, constants.CHARFIELD_CHARSET_ASCII)
 
     def _generate_datetimefield(self, instance, field):
+        if field.default != NOT_PROVIDED and \
+                hasattr(field.default, '__call__'):
+            return field.default()
         return datetime.datetime.now()
 
     def _generate_datefield(self, instance, field):
+        if field.default != NOT_PROVIDED and \
+                hasattr(field.default, '__call__'):
+            return field.default()
         return datetime.date.today()
 
     def _get_integer_limits(self, field, connection_obj=connection):
@@ -170,6 +189,8 @@ class Generator(object):
         return limits
 
     def _generate_integerfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         limits = self._get_integer_limits(field)
         return random.randint(*limits)
 
@@ -177,14 +198,20 @@ class Generator(object):
         return constants.FLOATFIELD_MIN, constants.FLOATFIELD_MAX
 
     def _generate_floatfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         limits = self._get_float_limits(field)
         return random.uniform(*limits)
 
     def _generate_positiveintegerfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
     def _generate_positivesmallintegerfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
@@ -193,9 +220,13 @@ class Generator(object):
         return random.randint(0, limits[1])
 
     def _generate_booleanfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         return random.choice([True, False])
 
     def _generate_emailfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
         val_len = random.randint(1, int(field.max_length/2 - 5))
         val = self._iter_for_choice(
             val_len, constants.EMAIL_CHARSET)
