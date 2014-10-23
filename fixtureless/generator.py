@@ -3,7 +3,6 @@ import datetime
 import decimal
 import math
 import random
-import itertools
 
 from django.db import models
 from django.db import connection
@@ -131,7 +130,7 @@ class Generator(object):
         if field.max_length is not None:
             str_len = random.randint(0, field.max_length)
 
-        return self._iter_for_choice(str_len, char_set)
+        return random_str(str_len, char_set)
 
     def _generate_charfield(self, instance, field):
         if field.default != NOT_PROVIDED:
@@ -163,8 +162,7 @@ class Generator(object):
         if field.max_length is not None:
             str_len = random.randint(0, field.max_length)
 
-        return self._iter_for_choice(
-            str_len, constants.CHARFIELD_CHARSET_ASCII)
+        return random_str(str_len, constants.CHARFIELD_CHARSET_ASCII)
 
     def _generate_datetimefield(self, instance, field):
         if field.default != NOT_PROVIDED and \
@@ -233,20 +231,10 @@ class Generator(object):
         if field.default != NOT_PROVIDED:
             return field.default
         val_len = random.randint(1, int(field.max_length/2 - 5))
-        val = self._iter_for_choice(
-            val_len, constants.EMAIL_CHARSET)
-        val += '@'
-        val = self._iter_for_choice(
-            val_len, constants.EMAIL_CHARSET, val)
-        val += '.'
-        val = self._iter_for_choice(
-            3, constants.EMAIL_CHARSET, val)
-        return val
-
-    def _iter_for_choice(self, val_len, char_set, val=''):
-        for _ in itertools.repeat(None, val_len):
-            val += random.choice(char_set)
-        return val
+        return '{}@{}.{}'.format(
+            random_str(val_len, constants.EMAIL_CHARSET),
+            random_str(val_len, constants.EMAIL_CHARSET),
+            random_str(3, constants.EMAIL_CHARSET))
 
     def _get_db_type(self, instance):
         db_name = 'default'
@@ -281,3 +269,7 @@ def create_instance(klass, **kwargs):
                     except (IOError, OSError, SuspiciousFileOperation):
                         pass
     return instance
+
+
+def random_str(val_len, char_set):
+    return ''.join(map(random.choice, (char_set,) * val_len))
