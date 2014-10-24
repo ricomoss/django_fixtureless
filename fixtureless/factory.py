@@ -55,19 +55,22 @@ class Factory(object):
         return (create_instance(model, **(kwargs if kwargs else {}))
                 for kwargs in kwargs_iter)
 
-    def create(self, *args):
+    def _order_and_build(self, *args):
         if inspect.isclass(args[0]) and issubclass(args[0], Model):
             args = (args,)
         builds = itertools.starmap(self._handle_build, args)
-        objs = tuple(save_instances(itertools.chain.from_iterable(builds)))
+        return itertools.chain.from_iterable(builds)
+
+    def _deliver(self, *args, **kwargs):
+        pipeline = self._order_and_build(*args)
+        objs = tuple(save_instances(pipeline) if kwargs['save'] else pipeline)
         return objs if len(objs) > 1 else objs[0]
 
+    def create(self, *args):
+        return self._deliver(*args, save=True)
+
     def build(self, *args):
-        if inspect.isclass(args[0]) and issubclass(args[0], Model):
-            args = (args,)
-        builds = itertools.starmap(self._handle_build, args)
-        objs = tuple(itertools.chain.from_iterable(builds))
-        return objs if len(objs) > 1 else objs[0]
+        return self._deliver(*args, save=False)
 
 
 def save_instances(iterable):
