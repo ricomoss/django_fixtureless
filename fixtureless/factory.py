@@ -69,24 +69,16 @@ class Factory(object):
     def create(self, *args):
         objs = list()
         if inspect.isclass(args[0]) and issubclass(args[0], Model):
-            models = self._handle_build(*args, objs=objs, create=True)
-            if len(models) == 1:
-                return models[0]
-            else:
-                return models
+            args = (args,)
         for sub_args in args:
             self._handle_build(*sub_args, objs=objs, create=True)
-        return objs
+        return objs if len(objs) > 1 else objs[0]
 
     def build(self, *args):
         objs = list()
         if inspect.isclass(args[0]) and issubclass(args[0], Model):
-            models = self._handle_build(*args, objs=objs)
-            if len(models) == 1:
-                return models[0]
-            else:
-                return models
+            args = (args,)
         for sub_args in args:
             self._handle_build(*sub_args, objs=objs)
-        return objs
+        return objs if len(objs) > 1 else objs[0]
 
