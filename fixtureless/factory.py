@@ -50,27 +50,16 @@ class Factory(object):
         self._verify_kwargs(kwargs_iter)
         return model, kwargs_iter
 
-    def _build_instance(self, model, kwargs, create):
-        if kwargs is not None:
-            obj = create_instance(model, **kwargs)
-        else:
-            obj = create_instance(model)
-        if create:
-            obj.save()
-        return obj
-
-    def _handle_build(self, *args, **kwargs):
-        create = kwargs.get('create', False)
+    def _handle_build(self, *args):
         model, kwargs_iter = self._resolve_args(*args)
-        return (self._build_instance(model, kwargs, create)
+        return (create_instance(model, **(kwargs if kwargs else {}))
                 for kwargs in kwargs_iter)
 
     def create(self, *args):
         if inspect.isclass(args[0]) and issubclass(args[0], Model):
             args = (args,)
-        builds = (self._handle_build(*sub_args, create=True)
-                  for sub_args in args)
-        objs = tuple(itertools.chain.from_iterable(builds))
+        builds = itertools.starmap(self._handle_build, args)
+        objs = tuple(save_instances(itertools.chain.from_iterable(builds)))
         return objs if len(objs) > 1 else objs[0]
 
     def build(self, *args):
@@ -79,3 +68,9 @@ class Factory(object):
         builds = itertools.starmap(self._handle_build, args)
         objs = tuple(itertools.chain.from_iterable(builds))
         return objs if len(objs) > 1 else objs[0]
+
+
+def save_instances(iterable):
+    for instance in iterable:
+        instance.save()
+        yield instance
