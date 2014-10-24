@@ -9,7 +9,12 @@ from django.db import models
 from django.db import connection
 from django.db.models.fields import NOT_PROVIDED
 from django.conf import settings
-from django.core.exceptions import SuspiciousFileOperation
+try:
+    from django.core.exceptions import SuspiciousFileOperation
+except ImportError:
+    # For django 1.4
+    from django.core.exceptions import SuspiciousOperation as\
+            SuspiciousFileOperation
 
 from fixtureless import constants
 
