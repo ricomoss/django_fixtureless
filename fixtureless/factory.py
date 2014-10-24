@@ -1,4 +1,5 @@
 import inspect
+import itertools
 
 from django.db.models import Model
 
@@ -49,36 +50,32 @@ class Factory(object):
         self._verify_kwargs(kwargs_iter)
         return model, kwargs_iter
 
-    def _build_instance(self, model, kwargs, objs, create):
+    def _build_instance(self, model, kwargs, create):
         if kwargs is not None:
             obj = create_instance(model, **kwargs)
         else:
             obj = create_instance(model)
         if create:
             obj.save()
-        objs.append(obj)
+        return obj
 
     def _handle_build(self, *args, **kwargs):
-        objs = kwargs.get('objs')
         create = kwargs.get('create', False)
         model, kwargs_iter = self._resolve_args(*args)
-        for kwargs in kwargs_iter:
-            self._build_instance(model, kwargs, objs, create)
-        return objs
+        return (self._build_instance(model, kwargs, create)
+                for kwargs in kwargs_iter)
 
     def create(self, *args):
-        objs = list()
         if inspect.isclass(args[0]) and issubclass(args[0], Model):
             args = (args,)
-        for sub_args in args:
-            self._handle_build(*sub_args, objs=objs, create=True)
+        builds = (self._handle_build(*sub_args, create=True)
+                  for sub_args in args)
+        objs = tuple(itertools.chain.from_iterable(builds))
         return objs if len(objs) > 1 else objs[0]
 
     def build(self, *args):
-        objs = list()
         if inspect.isclass(args[0]) and issubclass(args[0], Model):
             args = (args,)
-        for sub_args in args:
-            self._handle_build(*sub_args, objs=objs)
+        builds = itertools.starmap(self._handle_build, args)
+        objs = tuple(itertools.chain.from_iterable(builds))
         return objs if len(objs) > 1 else objs[0]
-
