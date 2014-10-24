@@ -9,18 +9,19 @@ from fixtureless.utils import list_get
 
 
 class Factory(object):
+
     def _verify_kwargs(self, vals):
+        def _error_nondict(x):
+            if not isinstance(x, dict) and x is not None:
+                raise exceptions.InvalidArguments(
+                    'The fixtureless factory expected kwargs of type dict'
+                    ' and was given type {}'.format(type(x)))
+
         if isinstance(vals, (list, tuple)):
-            for val in vals:
-                if isinstance(val, dict) or val is None:
-                    continue
-                msg = 'The fixturless factory expected kwargs of type dict' \
-                      ' and was given type {}'.format(type(val))
-                raise exceptions.InvalidArguments(msg)
-        elif not isinstance(vals, dict) and vals is not None:
-            msg = 'The fixturless factory expected kwargs of type dict' \
-                  ' and was given type {}'.format(type(vals))
-            raise exceptions.InvalidArguments(msg)
+            for x in vals:
+                _error_nondict(x)
+        else:
+            _error_nondict(vals)
 
     def _handle_second_arg(self, *args):
         sec_arg = list_get(args, 1)
