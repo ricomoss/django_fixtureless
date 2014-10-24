@@ -1,4 +1,3 @@
-import itertools
 import inspect
 
 from django.db.models import Model
@@ -30,11 +29,10 @@ class Factory(object):
         if isinstance(sec_arg, int):
             count = sec_arg
         elif isinstance(sec_arg, (list, tuple)):
-            kwargs = sec_arg
-            count = len(kwargs)
+            return sec_arg
         elif isinstance(sec_arg, dict):
             kwargs = sec_arg
-        return kwargs, count
+        return (kwargs,) * count
 
 
     def _resolve_args(self, *args):
@@ -47,9 +45,9 @@ class Factory(object):
             msg = 'The fixtureless factory expects a Django model ({}) as' \
                   ' the first argument.'.format(type(Model))
             raise exceptions.InvalidArguments(msg)
-        kwargs, count = self._handle_second_arg(*args)
-        self._verify_kwargs(kwargs)
-        return model, count, kwargs
+        kwargs_iter = self._handle_second_arg(*args)
+        self._verify_kwargs(kwargs_iter)
+        return model, kwargs_iter
 
     def _build_instance(self, model, kwargs, objs, create):
         if kwargs is not None:
@@ -63,13 +61,9 @@ class Factory(object):
     def _handle_build(self, *args, **kwargs):
         objs = kwargs.get('objs')
         create = kwargs.get('create', False)
-        model, count, kwargs = self._resolve_args(*args)
-        if isinstance(kwargs, (list, tuple)):
-            for sub_kwargs in kwargs:
-                self._build_instance(model, sub_kwargs, objs, create)
-        else:
-            for _ in itertools.repeat(None, count):
-                self._build_instance(model, kwargs, objs, create)
+        model, kwargs_iter = self._resolve_args(*args)
+        for kwargs in kwargs_iter:
+            self._build_instance(model, kwargs, objs, create)
         return objs
 
     def create(self, *args):

@@ -17,10 +17,10 @@ class FactoryTest(TestCase):
         with self.assertRaises(InvalidArguments) as _:
             factory._resolve_args('wrong_val')
 
-        model, count, initial = factory._resolve_args(ModelOne)
+        model, initial = factory._resolve_args(ModelOne)
         self.assertEqual(model, ModelOne)
-        self.assertIsInstance(count, int)
-        self.assertIsNone(initial)
+        self.assertIsInstance(initial, tuple)
+        self.assertIsNone(initial[0])
 
     def test_verify_kwargs(self):
         factory = Factory()
