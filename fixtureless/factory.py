@@ -35,7 +35,6 @@ class Factory(object):
             kwargs = sec_arg
         return (kwargs,) * count
 
-
     def _resolve_args(self, *args):
         try:
             if inspect.isclass(args[0]) and issubclass(args[0], Model):

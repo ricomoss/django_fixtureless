@@ -13,7 +13,7 @@ try:
 except ImportError:
     # For django 1.4
     from django.core.exceptions import SuspiciousOperation as\
-            SuspiciousFileOperation
+        SuspiciousFileOperation
 
 from fixtureless import constants
 
