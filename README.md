@@ -18,7 +18,7 @@ dictionary containing any specific data you want to test.
 Requirements
 -----------------
 
-1. Django >= 1.4
+1. Django 1.4 - 1.7 (Efforts to support 1.8 are underway.)
 2. Python (2.7+ or 3.3+)
 
 Supports
