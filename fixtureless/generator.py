@@ -57,7 +57,7 @@ class Generator(object):
     def _generate_foreignkey(self, instance, field):
         try:
             # Django > 1.8
-            klass = field.related.model
+            klass = field.related_model
         except AttributeError:
             # Django < 1.8
             klass = field.related.parent_model
@@ -265,7 +265,7 @@ def create_instance(klass, **kwargs):
                 try:
                     # Django > 1.8
                     is_related_model = isinstance(
-                        instance, field.related.model)
+                        instance, field.related_model)
                 except AttributeError:
                     # Django < 1.8
                     is_related_model = isinstance(
