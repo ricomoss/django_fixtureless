@@ -55,7 +55,13 @@ class Generator(object):
         return pytz.UTC
 
     def _generate_foreignkey(self, instance, field):
-        klass = field.related.parent_model
+        try:
+            # Django > 1.8
+            klass = field.related.model
+        except AttributeError:
+            # Django < 1.8
+            klass = field.related.parent_model
+
         instance = None
         if not field.unique:
             # Try to retrieve the last one
@@ -254,8 +260,18 @@ def create_instance(klass, **kwargs):
             # class in multi-table inheritance. Its fields are taken into
             # account in the instance.fields list. (instance.local_fields
             # skips these.)
-            if not (isinstance(field, models.OneToOneField) and
-                    isinstance(instance, field.related.parent_model)):
+            is_related_model = False
+            if hasattr(field, 'related'):
+                try:
+                    # Django > 1.8
+                    is_related_model = isinstance(
+                        instance, field.related.model)
+                except AttributeError:
+                    # Django < 1.8
+                    is_related_model = isinstance(
+                        instance, field.related.parent_model)
+            if not (isinstance(field, models.OneToOneField)
+                    and is_related_model):
                 val = Generator().get_val(instance, field)
                 # Not worrying about creating file objects on disk
                 if PY3:
