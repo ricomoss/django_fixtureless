@@ -197,6 +197,12 @@ class Generator(object):
                 field.name, conn_type))
         return limits
 
+    def _generate_smallintegerfield(self, instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
+        limits = self._get_integer_limits(field)
+        return random.randint(*limits)
+
     def _generate_integerfield(self, instance, field):
         if field.default != NOT_PROVIDED:
             return field.default

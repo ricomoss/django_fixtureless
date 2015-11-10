@@ -1,7 +1,7 @@
 django-fixtureless
 ====================
 
-Fixtureless Testing Utility for Django.  (ver. 1.4.3.1)
+Fixtureless Testing Utility for Django.  (ver. 1.4.3.2)
 
 The purpose behind fixtureless is to provide a fast and easy way to create
 test objects in Django.  Fixtures are often used to provide a set of mock data
@@ -18,7 +18,7 @@ dictionary containing any specific data you want to test.
 Requirements
 -----------------
 
-1. Django 1.4 - 1.8
+1. Django 1.5 - 1.8
 2. Python (2.7+ or 3.3+)
 
 Supports
