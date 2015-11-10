@@ -15,6 +15,7 @@ class ModelOne(models.Model):
     date_field = models.DateField()
     datetime_field = models.DateTimeField()
     integer_field = models.IntegerField()
+    small_integer_field = models.SmallIntegerField()
     positive_integer_field = models.PositiveIntegerField()
     positive_small_integer_field = models.PositiveSmallIntegerField()
     auto_field = models.AutoField(primary_key=True)

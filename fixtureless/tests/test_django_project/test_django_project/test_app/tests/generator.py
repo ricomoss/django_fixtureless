@@ -63,6 +63,9 @@ class ModelOneTest(TestCase):
     def test_integer_field(self):
         self.assertIsInstance(self.model_one.integer_field, int)
 
+    def test_small_integer_field(self):
+        self.assertIsInstance(self.model_one.small_integer_field, int)
+
     def test_positive_integer_field(self):
         self.assertIsInstance(self.model_one.positive_integer_field, int)
         exp = 0 <= self.model_one.positive_integer_field <= \
