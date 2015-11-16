@@ -6,7 +6,7 @@ and classes of django-fixtureless. With these efforts, we strive to keep
 as close as we can to 100% code coverage in these tested areas.
 
 In django-fixtureless
----------
+---------------------
 
 .. warning::
     These guides assume that you have already created and activated your

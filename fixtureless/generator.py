@@ -182,6 +182,12 @@ class Generator(object):
             return field.default()
         return datetime.date.today()
 
+    def _generate_timefield(self, instance, field):
+        if field.default != NOT_PROVIDED and \
+                hasattr(field.default, '__call__'):
+            return field.default()
+        return datetime.datetime.now().time()
+
     def _get_integer_limits(self, field, connection_obj=connection):
         conn_type = field.db_type(connection_obj)
         if conn_type.startswith('integer') or conn_type.startswith('serial'):

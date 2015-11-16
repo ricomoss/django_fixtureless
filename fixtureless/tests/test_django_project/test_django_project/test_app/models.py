@@ -21,6 +21,7 @@ class ModelOne(models.Model):
     auto_field = models.AutoField(primary_key=True)
     email_field = models.EmailField()
     url_field = models.URLField()
+    time_field = models.TimeField()
     timezone_field = TimeZoneField(default='America/Denver')
     float_field = models.FloatField()
 

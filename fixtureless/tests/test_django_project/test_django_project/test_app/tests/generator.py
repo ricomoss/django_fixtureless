@@ -83,6 +83,9 @@ class ModelOneTest(TestCase):
         exp = 0 <= self.model_one.auto_field <= POSTGRES_INT_MAX
         self.assertTrue(exp)
 
+    def test_time_field(self):
+        self.assertIsInstance(self.model_one.time_field, datetime.time)
+
     def test_timezone_field(self):
         try:
             import pytz
