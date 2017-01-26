@@ -271,7 +271,8 @@ class Generator(object):
             return field.default
         return json.dumps(utils.get_random_dict())
 
-    def _get_db_type(self, instance):
+    @staticmethod
+    def _get_db_type(instance):
         db_name = 'default'
         if instance._state.db is not None:
             db_name = instance._state.db
