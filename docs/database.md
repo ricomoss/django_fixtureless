@@ -1,6 +1,5 @@
-==========================
 Database Setups
-==========================
+===============
 
 This guide will help you set up your databases for django-fixtureless.
 
@@ -15,14 +14,14 @@ to help django-fixtureless development and testing.
    A dollar sign ($) indicates a terminal prompt, as your user, not root.
 
 SQLite
---------------
+------
 
 No setup is necessary.  Django's test suite automatically handles
 the creation and tear down of SQLite databases.
 
 
 Postgres
---------------
+--------
 
 1.  Use your package manager to install the postgres server::
 
@@ -47,7 +46,7 @@ Postgres
         sudo service postgresql reload
 
 MySQL
---------------
+-----
 
 1.  Use your package manager to install the mysql server::
 

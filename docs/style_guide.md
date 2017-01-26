@@ -1,17 +1,17 @@
 django-fixturless Programming Style Guide
-===============================
+=========================================
 
 The focus of this style guide is to keep consistency within the
 django-fixtureless project. Most of the style guide will be inherited
 from Python's style guide,
-`PEP-8 <http://www.python.org/dev/peps/pep-0008/>`_, and
-`Django's Coding Style <http://tinyurl.com/6753zmc>`_.
+[PEP-8](http://www.python.org/dev/peps/pep-0008/), and
+[Django's Coding Style](http://tinyurl.com/6753zmc).
 
 PEP-8
 -----
 This is a highlight of the important pieces of the PEP-8 document. You should
 still read the whole document to familiarize yourself with all rules.
-`PEP-8 <http://www.python.org/dev/peps/pep-0008/>`_
+[PEP-8](http://www.python.org/dev/peps/pep-0008/)
 
 - Two good reasons to break a particular rule:
     - When applying the rule would make the code less readable, even for
@@ -40,7 +40,7 @@ Create your own remote branch from the dev branch for all commits. Then create
 a Pull Request on github to the dev branch on the ricomoss github repo.
 
 Tests
------------------------
+-----
 Each class being tested should include tests for each condition in each method.
 
 Module-level functions should be tested in these files, as well.
