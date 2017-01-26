@@ -10,12 +10,13 @@ from fixtureless.utils import list_get
 
 class Factory(object):
 
-    def _verify_kwargs(self, vals):
-        def _error_nondict(x):
-            if not isinstance(x, dict) and x is not None:
+    @staticmethod
+    def _verify_kwargs(vals):
+        def _error_nondict(x_0):
+            if not isinstance(x_0, dict) and x_0 is not None:
                 raise exceptions.InvalidArguments(
                     'The fixtureless factory expected kwargs of type dict'
-                    ' and was given type {}'.format(type(x)))
+                    ' and was given type {}'.format(type(x_0)))
 
         if isinstance(vals, (list, tuple)):
             for x in vals:
@@ -23,7 +24,8 @@ class Factory(object):
         else:
             _error_nondict(vals)
 
-    def _handle_second_arg(self, *args):
+    @staticmethod
+    def _handle_second_arg(*args):
         sec_arg = list_get(args, 1)
         count = 1
         kwargs = None

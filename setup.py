@@ -30,5 +30,5 @@ setup(
     description='Test utility to create fixtureless objects in Django.',
     long_description=LONG_DESCRIPTION,
     keywords=['unittest', 'django', 'Python 3'],
-    install_requires=['django>=1.5']
+    install_requires=['django>=1.8']
 )

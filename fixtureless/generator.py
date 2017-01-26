@@ -3,6 +3,7 @@ import datetime
 import decimal
 import math
 import random
+import json
 
 from django.db import models
 from django.db import connection
@@ -16,6 +17,7 @@ except ImportError:
         SuspiciousFileOperation
 
 from fixtureless import constants
+from fixtureless import utils
 
 PY3 = sys.version_info.major == 3
 
@@ -35,7 +37,8 @@ class Generator(object):
                 val = func(instance, field)
         return val
 
-    def _val_is_unique(self, val, field):
+    @staticmethod
+    def _val_is_unique(val, field):
         """
         Currently only checks the field's uniqueness, not the model validation.
         """
@@ -48,19 +51,21 @@ class Generator(object):
         field_name = field.name
         return field.model.objects.filter(**{field_name: val}).count() == 0
 
-    def _generate_timezonefield(self, instance, field):
+    @staticmethod
+    def _generate_timezonefield(instance, field):
         import pytz
         if field.default != NOT_PROVIDED:
             return pytz.timezone(field.default)
         return pytz.UTC
 
-    def _generate_foreignkey(self, instance, field):
+    @staticmethod
+    def _generate_foreignkey(instance, field):
         try:
-            # Django > 1.8
-            klass = field.related_model
+            # Django 1.10
+            klass = field.remote_field.model
         except AttributeError:
-            # Django < 1.8
-            klass = field.related.parent_model
+            # Django 1.8 - 1.9
+            klass = field.related.model
 
         instance = None
         if not field.unique:
@@ -77,12 +82,14 @@ class Generator(object):
     def _generate_onetoonefield(self, instance, field):
         return self._generate_foreignkey(instance, field)
 
-    def _generate_dictionaryfield(self, instance, field):
+    @staticmethod
+    def _generate_dictionaryfield(instance, field):
         if field.default != NOT_PROVIDED:
             return field.default
         return {}
 
-    def _generate_integerrangefield(self, instance, field):
+    @staticmethod
+    def _generate_integerrangefield(instance, field):
         if field.default != NOT_PROVIDED:
             return field.default
         return random.randint(field.min_value, field.max_value)
@@ -90,7 +97,8 @@ class Generator(object):
     def _generate_storefield(self, instance, field):
         return self._generate_dictionaryfield(instance, field)
 
-    def _generate_decimalfield(self, instance, field):
+    @staticmethod
+    def _generate_decimalfield(instance, field):
         if field.default != NOT_PROVIDED:
             return field.default
         len_int_part = field.max_digits - field.decimal_places
@@ -117,7 +125,8 @@ class Generator(object):
         val = decimal.Decimal('{}.{}'.format(int_part, fractional_part))
         return val
 
-    def _generate_ipaddressfield(self, instance, field):
+    @staticmethod
+    def _generate_ipaddressfield(instance, field):
         """ Currently only IPv4 fields. """
         if field.default != NOT_PROVIDED:
             return field.default
@@ -125,7 +134,8 @@ class Generator(object):
         octets = [str(random.randint(0, 255)) for n in range(num_octets)]
         return '.'.join(octets)
 
-    def _generate_with_char_set(self, char_set, field):
+    @staticmethod
+    def _generate_with_char_set(char_set, field):
         if field.default != NOT_PROVIDED:
             return field.default
         # Use a choice if this field has them defined.
@@ -136,7 +146,7 @@ class Generator(object):
         if field.max_length is not None:
             str_len = random.randint(0, field.max_length)
 
-        return random_str(str_len, char_set)
+        return utils.random_str(str_len, char_set)
 
     def _generate_charfield(self, instance, field):
         if field.default != NOT_PROVIDED:
@@ -161,22 +171,25 @@ class Generator(object):
     def _generate_urlfield(self, instance, field):
         return self._generate_charfield(instance, field)
 
-    def _generate_slugfield(self, instance, field):
+    @staticmethod
+    def _generate_slugfield(instance, field):
         if field.default != NOT_PROVIDED:
             return field.default
         str_len = constants.DEFAULT_CHARFIELD_MAX_LEN
         if field.max_length is not None:
             str_len = random.randint(0, field.max_length)
 
-        return random_str(str_len, constants.CHARFIELD_CHARSET_ASCII)
+        return utils.random_str(str_len, constants.CHARFIELD_CHARSET_ASCII)
 
-    def _generate_datetimefield(self, instance, field):
+    @staticmethod
+    def _generate_datetimefield(instance, field):
         if field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
             return field.default()
         return datetime.datetime.now()
 
-    def _generate_datefield(self, instance, field):
+    @staticmethod
+    def _generate_datefield(instance, field):
         if field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
             return field.default()
@@ -188,7 +201,8 @@ class Generator(object):
             return field.default()
         return datetime.datetime.now().time()
 
-    def _get_integer_limits(self, field, connection_obj=connection):
+    @staticmethod
+    def _get_integer_limits(field, connection_obj=connection):
         conn_type = field.db_type(connection_obj)
         if conn_type.startswith('integer') or conn_type.startswith('serial'):
             limits = (constants.POSTGRES_INT_MIN, constants.POSTGRES_INT_MAX)
@@ -215,7 +229,8 @@ class Generator(object):
         limits = self._get_integer_limits(field)
         return random.randint(*limits)
 
-    def _get_float_limits(self, field):
+    @staticmethod
+    def _get_float_limits(field):
         return constants.FLOATFIELD_MIN, constants.FLOATFIELD_MAX
 
     def _generate_floatfield(self, instance, field):
@@ -240,21 +255,30 @@ class Generator(object):
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
-    def _generate_booleanfield(self, instance, field):
+    @staticmethod
+    def _generate_booleanfield(instance, field):
         if field.default != NOT_PROVIDED:
             return field.default
         return random.choice([True, False])
 
-    def _generate_emailfield(self, instance, field):
+    @staticmethod
+    def _generate_emailfield(instance, field):
         if field.default != NOT_PROVIDED:
             return field.default
         val_len = random.randint(1, int(field.max_length/2 - 5))
         return '{}@{}.{}'.format(
-            random_str(val_len, constants.EMAIL_CHARSET),
-            random_str(val_len, constants.EMAIL_CHARSET),
-            random_str(3, constants.EMAIL_CHARSET))
+            utils.random_str(val_len, constants.EMAIL_CHARSET),
+            utils.random_str(val_len, constants.EMAIL_CHARSET),
+            utils.random_str(3, constants.EMAIL_CHARSET))
 
-    def _get_db_type(self, instance):
+    @staticmethod
+    def _generate_jsonfield(instance, field):
+        if field.default != NOT_PROVIDED:
+            return field.default
+        return json.dumps(utils.get_random_dict())
+
+    @staticmethod
+    def _get_db_type(instance):
         db_name = 'default'
         if instance._state.db is not None:
             db_name = instance._state.db
@@ -297,7 +321,3 @@ def create_instance(klass, **kwargs):
                     except (IOError, OSError, SuspiciousFileOperation):
                         pass
     return instance
-
-
-def random_str(val_len, char_set):
-    return ''.join(map(random.choice, (char_set,) * val_len))
