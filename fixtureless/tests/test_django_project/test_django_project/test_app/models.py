@@ -32,6 +32,7 @@ class ModelOne(models.Model):
     image_height = models.PositiveIntegerField()
 
     file_field = models.FileField(upload_to='/tmp')
+    auto_now_add_field = models.DateTimeField(auto_now_add=True)
 
 
 class ModelTwo(models.Model):

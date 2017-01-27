@@ -119,6 +119,9 @@ class ModelOneTest(TestCase):
     def test_file_field(self):
         self.assertIsInstance(self.model_one.file_field, FieldFile)
 
+    def test_auto_now_add_field(self):
+        self.assertIsInstance(self.model_one.auto_now_add_field, datetime.datetime)
+
 
 class ModelTwoTest(TestCase):
     def setUp(self):

@@ -285,13 +285,28 @@ class Generator(object):
         return settings.DATABASES[db_name]['ENGINE'].split('.')[-1]
 
 
+def _should_autogen_data(field, kwargs):
+    if field.name in kwargs:
+        return False
+
+    if not field.blank:
+        return True
+
+    if field.name in constants.SPECIAL_FIELDS:
+        return True
+
+    if hasattr(field, 'auto_now_add') and field.auto_now_add:
+        return True
+
+    return False
+
+
 def create_instance(klass, **kwargs):
     instance = klass(**kwargs)
     # .local_fields:
     for field in instance._meta.fields:
         # Don't autogen data that's been provided or if the field can be blank
-        if field.name not in kwargs and \
-                (not field.blank or field.name in constants.SPECIAL_FIELDS):
+        if _should_autogen_data(field, kwargs):
             # Don't set a OneToOneField if it is the pointer to a parent
             # class in multi-table inheritance. Its fields are taken into
             # account in the instance.fields list. (instance.local_fields
