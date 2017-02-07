@@ -289,7 +289,7 @@ def _should_autogen_data(field, kwargs):
     if field.name in kwargs:
         return False
 
-    if not field.blank:
+    if not (field.blank and field.null):
         return True
 
     if field.name in constants.SPECIAL_FIELDS:
