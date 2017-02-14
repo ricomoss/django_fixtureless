@@ -9,6 +9,8 @@ from django.db import models
 from django.db import connection
 from django.db.models.fields import NOT_PROVIDED
 from django.conf import settings
+from django.utils import timezone
+
 try:
     from django.core.exceptions import SuspiciousFileOperation
 except ImportError:
@@ -23,6 +25,8 @@ PY3 = sys.version_info.major == 3
 
 
 class Generator(object):
+    USE_TZ = getattr(settings, 'USE_TZ', False)
+
     def get_val(self, instance, field):
         callable_name = '_generate_{}'.format(type(field).__name__.lower())
         try:
@@ -181,11 +185,12 @@ class Generator(object):
 
         return utils.random_str(str_len, constants.CHARFIELD_CHARSET_ASCII)
 
-    @staticmethod
-    def _generate_datetimefield(instance, field):
+    def _generate_datetimefield(self, instance, field):
         if field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
             return field.default()
+        if self.USE_TZ:
+            return timezone.now()
         return datetime.datetime.now()
 
     @staticmethod
@@ -199,6 +204,8 @@ class Generator(object):
         if field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
             return field.default()
+        if self.USE_TZ:
+            return timezone.now().time()
         return datetime.datetime.now().time()
 
     @staticmethod
