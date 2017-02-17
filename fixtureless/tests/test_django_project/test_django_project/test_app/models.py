@@ -40,3 +40,4 @@ class ModelTwo(models.Model):
     one_to_one = models.OneToOneField(
         ModelOne, related_name='modeltwo_one2one')
     char_field = models.CharField(max_length=20)
+    big_auto_field = models.BigAutoField(primary_key=True)

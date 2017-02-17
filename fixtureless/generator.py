@@ -262,6 +262,10 @@ class Generator(object):
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
+    def _generate_bigautofield(self, instance, field):
+        limits = self._get_integer_limits(field)
+        return random.randint(0, limits[1])
+
     @staticmethod
     def _generate_booleanfield(instance, field):
         if field.default != NOT_PROVIDED:

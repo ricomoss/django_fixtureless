@@ -6,7 +6,7 @@ from django.db.models.fields.files import FieldFile, ImageFieldFile
 
 from test_app.models import ModelOne, ModelTwo
 from fixtureless.generator import create_instance
-from fixtureless.constants import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX, PY3
+from fixtureless.constants import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX, PY3, POSTGRES_BIGINT_MAX
 
 
 class ModelOneTest(TestCase):
@@ -145,3 +145,9 @@ class ModelTwoTest(TestCase):
         self.assertNotEqual(self.model_two_rand.one_to_one, self.model_one)
         self.assertNotEqual(
             self.model_two_rand.one_to_one, self.model_two_kwarg.one_to_one)
+
+    def test_big_auto_field(self):
+        self.assertIsInstance(self.model_two_rand.big_auto_field, int)
+        exp = 0 <= self.model_two_rand.big_auto_field <= POSTGRES_BIGINT_MAX
+        self.assertTrue(exp)
+
