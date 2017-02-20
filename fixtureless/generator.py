@@ -1,5 +1,4 @@
 import sys
-import datetime
 import decimal
 import math
 import random
@@ -189,24 +188,20 @@ class Generator(object):
         if field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
             return field.default()
-        if self.USE_TZ:
-            return timezone.now()
-        return datetime.datetime.now()
+        return timezone.now()
 
     @staticmethod
     def _generate_datefield(instance, field):
         if field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
             return field.default()
-        return datetime.date.today()
+        return timezone.now().today()
 
     def _generate_timefield(self, instance, field):
         if field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
             return field.default()
-        if self.USE_TZ:
-            return timezone.now().time()
-        return datetime.datetime.now().time()
+        return timezone.now().time()
 
     @staticmethod
     def _get_integer_limits(field, connection_obj=connection):
