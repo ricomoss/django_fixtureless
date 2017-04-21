@@ -78,3 +78,11 @@ def save_instances(iterable):
     for instance in iterable:
         instance.save()
         yield instance
+
+
+def create(*args):
+    return Factory().create(*args)
+
+
+def build(*args):
+    return Factory().build(*args)
