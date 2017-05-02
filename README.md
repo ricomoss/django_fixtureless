@@ -56,7 +56,7 @@ Both methods expect the same arguments.
 
     from my_app.models import MyModel
 
-    factory.build(MyModel[, count] | [, initial])
+    build(MyModel[, count] | [, initial])
 
 
 Usage
