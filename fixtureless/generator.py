@@ -10,12 +10,7 @@ from django.db.models.fields import NOT_PROVIDED
 from django.conf import settings
 from django.utils import timezone
 
-try:
-    from django.core.exceptions import SuspiciousFileOperation
-except ImportError:
-    # For django 1.4
-    from django.core.exceptions import SuspiciousOperation as\
-        SuspiciousFileOperation
+from django.core.exceptions import SuspiciousFileOperation
 
 from fixtureless import constants
 from fixtureless import utils
@@ -55,6 +50,7 @@ class Generator(object):
         return field.model.objects.filter(**{field_name: val}).count() == 0
 
     @staticmethod
+    @utils.deprecated
     def _generate_timezonefield(instance, field):
         import pytz
         if field.default != NOT_PROVIDED:
@@ -64,7 +60,7 @@ class Generator(object):
     @staticmethod
     def _generate_foreignkey(instance, field):
         try:
-            # Django 1.10
+            # Django >= 1.10
             klass = field.remote_field.model
         except AttributeError:
             # Django 1.8 - 1.9
@@ -129,7 +125,17 @@ class Generator(object):
         return val
 
     @staticmethod
+    @utils.deprecated
     def _generate_ipaddressfield(instance, field):
+        """ Currently only IPv4 fields. """
+        if field.default != NOT_PROVIDED:
+            return field.default
+        num_octets = 4
+        octets = [str(random.randint(0, 255)) for n in range(num_octets)]
+        return '.'.join(octets)
+
+    @staticmethod
+    def _generate_genericipaddressfield(instance, field):
         """ Currently only IPv4 fields. """
         if field.default != NOT_PROVIDED:
             return field.default
@@ -208,7 +214,7 @@ class Generator(object):
         conn_type = field.db_type(connection_obj)
         if conn_type.startswith('integer') or conn_type.startswith('serial'):
             limits = (constants.POSTGRES_INT_MIN, constants.POSTGRES_INT_MAX)
-        elif conn_type.startswith('bigint'):
+        elif conn_type.startswith('bigint') or conn_type.startswith('bigserial'):
             limits = (constants.POSTGRES_BIGINT_MIN,
                       constants.POSTGRES_BIGINT_MAX)
         elif conn_type.startswith('smallint'):

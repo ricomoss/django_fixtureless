@@ -1,9 +1,6 @@
 Testing
 =======
-Testing is an important part of the maintainability of django-fixtureless.
-We focus on building automated testing for the functions/methods
-and classes of django-fixtureless. With these efforts, we strive to keep
-as close as we can to 100% code coverage in these tested areas.
+Testing is an important part of the maintainability of django-fixtureless. We focus on building automated testing for the functions/methods and classes of django-fixtureless. With these efforts, we strive to keep as close as we can to 100% code coverage in these tested areas.
 
 In django-fixtureless
 ---------------------
@@ -19,8 +16,7 @@ You'll need to ensure you've run the **syncdb** command for the PostgreSQL and M
     $ django-admin.py syncdb --settings=test_django_project.settings.postgres
     $ django-admin.py syncdb --settings=test_django_project.settings.mysql
 
-We use Django's test commands to execute tests on django-fixtureless.
-This command should be run from
+We use Django's test commands to execute tests on django-fixtureless. This command should be run from
 **django-fixtureless/fixtureless/tests/test_django_project**.
 
         $ django-admin.py test test_app.tests --settings=test_django_project.settings.sqlite

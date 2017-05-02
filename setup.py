@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '1.5.5'
+version = '1.5.6'
 
 LONG_DESCRIPTION = """
 =====================================
@@ -13,7 +13,7 @@ inspection of your database relationships.  All required fields are
 randomly filled.  All foreign key relationships will create respective
 objects in the same fashion.
 
-.. note:: django-fixtureless only supports Django 1.5 or higher and Python
+.. note:: django-fixtureless only supports Django 1.8 or higher and Python
 2.7.x and Python 3.x.
 
 .. _Django: http://djangoproject.com

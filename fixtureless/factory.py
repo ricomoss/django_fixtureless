@@ -9,7 +9,6 @@ from fixtureless.utils import list_get
 
 
 class Factory(object):
-
     @staticmethod
     def _verify_kwargs(vals):
         def _error_nondict(x_0):

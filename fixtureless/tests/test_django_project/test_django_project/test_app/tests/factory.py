@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from fixtureless import Factory
 from fixtureless.exceptions import InvalidArguments
+from fixtureless.factory import create, build
 from test_app.models import ModelOne, ModelTwo
 
 
@@ -50,23 +51,20 @@ class FactoryTest(TestCase):
 
     # Model trivial
     def test_build_trivial(self):
-        factory = Factory()
-        model = factory.build(ModelOne)
+        model = build(ModelOne)
         self.assertIsInstance(model, ModelOne)
 
     # Model w/ single count
     def test_build_with_single_count(self):
-        factory = Factory()
         count = 1
         args = (ModelOne, count)
-        model = factory.build(*args)
+        model = build(*args)
         self.assertIsInstance(model, ModelOne)
 
     # Model w/ multiple count
     def test_build_with_multi_count(self):
-        factory = Factory()
         count = 2
-        models = factory.build(ModelOne, count)
+        models = build(ModelOne, count)
         self.assertEqual(len(models), count)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)
@@ -74,19 +72,16 @@ class FactoryTest(TestCase):
 
     # Model w/ single count and initial
     def test_build_with_count_and_initial(self):
-        factory = Factory()
-        count = 1
         initial = {
             'decimal_field': Decimal('10.00')
         }
         args = (ModelOne, initial)
-        model = factory.build(*args)
+        model = build(*args)
         self.assertIsInstance(model, ModelOne)
         self.assertEqual(model.decimal_field, initial['decimal_field'])
 
     # Model w/ multi count and single initial
     def test_build_with_multi_count_and_single_initial(self):
-        factory = Factory()
         count = 2
         initial1 = {
             'decimal_field': Decimal('10.00')
@@ -95,7 +90,7 @@ class FactoryTest(TestCase):
         for _ in itertools.repeat(None, count):
             initial_list.append(initial1)
         args = (ModelOne, initial_list)
-        models = factory.build(*args)
+        models = build(*args)
         self.assertEqual(len(models), count)
         self.assertIsInstance(models[0], ModelOne)
         self.assertEqual(models[0].decimal_field, initial1['decimal_field'])
@@ -104,7 +99,6 @@ class FactoryTest(TestCase):
 
     # Model w/ multi count and multi initial
     def test_build_with_multi_count_and_multi_initial(self):
-        factory = Factory()
         count = 2
         initial1 = {
             'decimal_field': Decimal('10.00')
@@ -113,7 +107,7 @@ class FactoryTest(TestCase):
             'decimal_field': Decimal('8.00')
         }
         args = (ModelOne, [initial1, initial2])
-        models = factory.build(*args)
+        models = build(*args)
         self.assertEqual(len(models), count)
         self.assertIsInstance(models[0], ModelOne)
         self.assertEqual(models[0].decimal_field, initial1['decimal_field'])
@@ -122,30 +116,27 @@ class FactoryTest(TestCase):
 
     # Multi Model Trivial
     def test_build_with_multi_model_trivial(self):
-        factory = Factory()
-        models = factory.build((ModelOne, ), (ModelTwo, ))
+        models = build((ModelOne, ), (ModelTwo, ))
         self.assertEqual(len(models), 2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelTwo)
 
     # Multi Model w/ single count
     def test_build_with_multi_model_and_single_count(self):
-        factory = Factory()
         count1 = 1
         count2 = 1
         args = ((ModelOne, count1), (ModelTwo, count2))
-        models = factory.build(*args)
+        models = build(*args)
         self.assertEqual(len(models), 2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelTwo)
 
     # Multi Model w/ multiple count
     def test_build_with_multi_model_and_multi_count(self):
-        factory = Factory()
         count1 = 2
         count2 = 3
         args = ((ModelOne, count1), (ModelTwo, count2))
-        models = factory.build(*args)
+        models = build(*args)
         self.assertEqual(len(models), count1 + count2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)
@@ -156,7 +147,6 @@ class FactoryTest(TestCase):
 
     # Multi Model w/ single count and initial
     def test_build_with_multi_model_and_single_count_and_single_initial(self):
-        factory = Factory()
         initial1 = {
             'decimal_field': Decimal('10.00')
         }
@@ -164,7 +154,7 @@ class FactoryTest(TestCase):
             'char_field': 'test value'
         }
         args = ((ModelOne, initial1), (ModelTwo, initial2))
-        models = factory.build(*args)
+        models = build(*args)
         self.assertIsInstance(models[0], ModelOne)
         self.assertEqual(models[0].decimal_field, initial1['decimal_field'])
 
@@ -173,7 +163,6 @@ class FactoryTest(TestCase):
 
     # Multi Model w/ multi count and single initial
     def test_build_with_multi_model_and_multi_count_and_single_initial(self):
-        factory = Factory()
         count1 = 2
         initial1 = {
             'decimal_field': Decimal('10.00')
@@ -189,7 +178,7 @@ class FactoryTest(TestCase):
         for _ in itertools.repeat(None, count2):
             initial_list2.append(initial2)
         args = ((ModelOne, initial_list1), (ModelTwo, initial_list2))
-        models = factory.build(*args)
+        models = build(*args)
         self.assertEqual(len(models), count1 + count2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)
@@ -205,7 +194,6 @@ class FactoryTest(TestCase):
 
     # Multi Model w/ multi count and multi initial
     def test_build_with_multi_model_and_multi_count_and_multi_initial(self):
-        factory = Factory()
         initial1_1 = {
             'decimal_field': Decimal('10.00')
         }
@@ -220,7 +208,7 @@ class FactoryTest(TestCase):
         }
         args = ((ModelOne, [initial1_1, initial1_2]),
                 (ModelTwo, [initial2_1, initial2_2]))
-        models = factory.build(*args)
+        models = build(*args)
         self.assertEqual(len(models), 4)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)
@@ -236,8 +224,7 @@ class FactoryTest(TestCase):
         models = ModelOne.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
-        model = factory.create(ModelOne)
+        model = create(ModelOne)
         self.assertIsInstance(model, ModelOne)
 
         models = ModelOne.objects.all()
@@ -248,10 +235,9 @@ class FactoryTest(TestCase):
         models = ModelOne.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         count = 1
         args = (ModelOne, count)
-        model = factory.create(*args)
+        model = create(*args)
         self.assertIsInstance(model, ModelOne)
 
         models = ModelOne.objects.all()
@@ -262,10 +248,9 @@ class FactoryTest(TestCase):
         models = ModelOne.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         count = 2
         args = (ModelOne, count)
-        models = factory.create(*args)
+        models = create(*args)
         self.assertEqual(len(models), count)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)
@@ -279,12 +264,11 @@ class FactoryTest(TestCase):
         models = ModelOne.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         initial = {
             'decimal_field': Decimal('10.00')
         }
         args = (ModelOne, initial)
-        model = factory.create(*args)
+        model = create(*args)
         self.assertIsInstance(model, ModelOne)
         self.assertEqual(model.decimal_field, initial['decimal_field'])
 
@@ -296,7 +280,6 @@ class FactoryTest(TestCase):
         models = ModelOne.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         count = 2
         initial1 = {
             'decimal_field': Decimal('10.00')
@@ -306,7 +289,7 @@ class FactoryTest(TestCase):
             initial_list.append(initial1)
 
         args = (ModelOne, initial_list)
-        models = factory.create(*args)
+        models = create(*args)
         self.assertEqual(len(models), count)
         self.assertIsInstance(models[0], ModelOne)
         self.assertEqual(models[0].decimal_field, initial1['decimal_field'])
@@ -321,7 +304,6 @@ class FactoryTest(TestCase):
         models = ModelOne.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         initial1 = {
             'decimal_field': Decimal('10.00')
         }
@@ -329,7 +311,7 @@ class FactoryTest(TestCase):
             'decimal_field': Decimal('8.00')
         }
         args = (ModelOne, [initial1, initial2])
-        models = factory.create(*args)
+        models = create(*args)
         self.assertEqual(len(models), 2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertEqual(models[0].decimal_field, initial1['decimal_field'])
@@ -346,8 +328,7 @@ class FactoryTest(TestCase):
         models = ModelTwo.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
-        models = factory.create((ModelOne, ), (ModelTwo, ))
+        models = create((ModelOne, ), (ModelTwo, ))
         self.assertEqual(len(models), 2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelTwo)
@@ -365,11 +346,10 @@ class FactoryTest(TestCase):
         models = ModelTwo.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         count1 = 1
         count2 = 1
         args = ((ModelOne, count1), (ModelTwo, count2))
-        models = factory.create(*args)
+        models = create(*args)
         self.assertEqual(len(models), 2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelTwo)
@@ -387,11 +367,10 @@ class FactoryTest(TestCase):
         models = ModelTwo.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         count1 = 2
         count2 = 3
         args = ((ModelOne, count1), (ModelTwo, count2))
-        models = factory.create(*args)
+        models = create(*args)
         self.assertEqual(len(models), count1 + count2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)
@@ -415,7 +394,6 @@ class FactoryTest(TestCase):
         models = ModelTwo.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         initial1 = {
             'decimal_field': Decimal('10.00')
         }
@@ -423,7 +401,7 @@ class FactoryTest(TestCase):
             'char_field': 'test value'
         }
         args = ((ModelOne, initial1), (ModelTwo, initial2))
-        models = factory.create(*args)
+        models = create(*args)
         self.assertIsInstance(models[0], ModelOne)
         self.assertEqual(models[0].decimal_field, initial1['decimal_field'])
 
@@ -445,7 +423,6 @@ class FactoryTest(TestCase):
         models = ModelTwo.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         count1 = 2
         initial1 = {
             'decimal_field': Decimal('10.00')
@@ -461,7 +438,7 @@ class FactoryTest(TestCase):
         for _ in itertools.repeat(None, count2):
             initial_list2.append(initial2)
         args = ((ModelOne, initial_list1), (ModelTwo, initial_list2))
-        models = factory.create(*args)
+        models = create(*args)
         self.assertEqual(len(models), count1 + count2)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)
@@ -490,7 +467,6 @@ class FactoryTest(TestCase):
         models = ModelTwo.objects.all()
         self.assertEqual(len(models), 0)
 
-        factory = Factory()
         initial1_1 = {
             'decimal_field': Decimal('10.00')
         }
@@ -505,7 +481,7 @@ class FactoryTest(TestCase):
         }
         args = ((ModelOne, [initial1_1, initial1_2]),
                 (ModelTwo, [initial2_1, initial2_2]))
-        models = factory.create(*args)
+        models = create(*args)
         self.assertEqual(len(models), 4)
         self.assertIsInstance(models[0], ModelOne)
         self.assertIsInstance(models[1], ModelOne)

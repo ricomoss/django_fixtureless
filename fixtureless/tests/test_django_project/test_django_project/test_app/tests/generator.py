@@ -89,6 +89,7 @@ class ModelOneTest(TestCase):
     def test_timezone_field(self):
         try:
             import pytz
+            import timezone_field
         except ImportError:
             return
         self.assertEqual(

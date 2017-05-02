@@ -1,14 +1,12 @@
 Virtual Environment Setup
 =========================
 
-This guide will help you set up your development environment for
-django-fixtureless.
+This guide will help you set up your development environment for django-fixtureless.
 
 Linux Installation (Ubuntu/Debian)
 ==================================
 
-By following these steps, you can easily have a working installation of the
-django-fixtureless development environment.
+By following these steps, you can easily have a working installation of the django-fixtureless development environment.
 
 **Note**:
 

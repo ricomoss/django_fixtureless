@@ -1,28 +1,21 @@
 django-fixtureless
-====================
+==================
 
-Fixtureless Testing Utility for Django.  (ver. 1.5.5)
+Fixtureless Testing Utility for Django.  (ver. 1.5.6)
 
-The purpose behind fixtureless is to provide a fast and easy way to create
-test objects in Django.  Fixtures are often used to provide a set of mock data
-for testing purposes.  It is tedious to update all the fixtures upon a model
-update or to create a new set of fixtures if you want to test specific model
-parameters.  When the project contains a large amount of fixtures tests also
-begin to run slowly due to the load time.
+The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are often used to provide a set of mock data for testing purposes.  It is tedious to update all the fixtures upon a model update or to create a new set of fixtures if you want to test specific model parameters.  When the project contains a large amount of fixtures tests also begin to run slowly due to the load time. 
 
-Fixtureless is meant to bypass all this.  You can create a fixtureless object
-given the model, the number of objects you want created and an `initial`
-dictionary containing any specific data you want to test.
+Fixtureless is meant to bypass all this.  You can create a fixtureless object given the model, the number of objects you want created and an `initial` dictionary containing any specific data you want to test.
 
 
 Requirements
------------------
+------------
 
-1. Django 1.8 - 1.10
+1. Django 1.8 - 1.11
 2. Python (2.7+ or 3.3+)
 
 Supports
------------------
+--------
 
 1. PostgreSQL
 2. SQLite
@@ -30,7 +23,7 @@ Supports
 4. django-timezone-field (As of ver. 1.2.0)
 
 Install
------------------
+-------
 
 django-fixtureless is registered with Pypi and can be installed using `pip`.
 
@@ -38,17 +31,13 @@ django-fixtureless is registered with Pypi and can be installed using `pip`.
 
 
 Releases and Branches
------------------
+---------------------
 
-The master branch is meant for release.  Upon an update to the master branch
-the version will increment according to the format: (major).(minor).(micro)
+The master branch is meant for release.  Upon an update to the master branch the version will increment according to the format: (major).(minor).(micro)
 
-The dev branch holds all approved updates to the django-fixtureless project
-until a release milestone is met, at which time dev will be merged into master.
+The dev branch holds all approved updates to the django-fixtureless project until a release milestone is met, at which time dev will be merged into master.
 
-Development is done on branches from dev and merge via pull requests into dev.
-Everyone is encouraged to fork this repo and create pull requests with
-additions they would like to see in the project.
+Development is done on branches from dev and merge via pull requests into dev. Everyone is encouraged to fork this repo and create pull requests with additions they would like to see in the project.
 
 
 API Definition
@@ -63,18 +52,16 @@ Fixtureless has two methods for use in the API.
 
 Both methods expect the same arguments.
 
-    from fixtureless import Factory
+    from fixtureless.factory import build
 
     from my_app.models import MyModel
 
-    factory = Factory()
     factory.build(MyModel[, count] | [, initial])
 
 
 Usage
------------------
-There are several available options to use with the fixtureless factory.  Below
-are examples of each.
+-----
+There are several available options to use with the fixtureless factory.  Below are examples of each.
 
 First let's define a few Django models to use in the examples.:
 
@@ -105,21 +92,19 @@ First let's define a few Django models to use in the examples.:
 
 Example 1: Trivial Case - A single object:
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     charge = factory.create(Charge)
 
 
 Example 2: Model w/ single count:
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     count = 1
     charge = factory.create(Charge, count)
 
@@ -131,11 +116,10 @@ Note:
 
 Example 3: Model w/ multiple count::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     count = 5
     charges = factory.create(Charge, count)
 
@@ -147,11 +131,10 @@ Note:
 
 Example 4: Model w/ single count and initial::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     initial = {
         'amount': '50',
         'description': 'test description',
@@ -168,11 +151,10 @@ Note:
 
 Example 5: Model w/ multi count and single initial::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     count = 2
     initial = {
         'amount': '50',
@@ -189,13 +171,12 @@ Note:
     *charges* list.  Both objects will contain the same *initial* data.  All
     other fields will be randomly generated.
 
-Example 6: Model /w multi count and multi intial::
+Example 6: Model /w multi count and multi initial::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     initial1 = {
         'amount': '50',
         'description': 'test description 1',
@@ -215,11 +196,10 @@ Note:
 
 Example 7: Multi Model Trivial::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge, Customer
 
-    factory = Factory()
     objs = factory.create((Charge, ), (Customer, ))
 
 Note:
@@ -230,11 +210,10 @@ Note:
 
 Example 8: Multi Model w/ counts::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge, Customer
 
-    factory = Factory()
     count1 = 1
     count2 = 2
     args = ((Charge, count1), (Customer, count2))
@@ -247,11 +226,10 @@ Note:
 
 Example 9: Multi Model w/ counts and initial::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     count1 = 2
     count2 = 3
     initial1 = {
@@ -279,11 +257,10 @@ Note:
 
 Example 10: Multi Model w/ counts and multi initial::
 
-    from fixtureless import Factory
+    from fixturless.factory import create
 
     from my_app.models import Charge
 
-    factory = Factory()
     count1 = 2
     count2 = 3
     initial1_1 = {
