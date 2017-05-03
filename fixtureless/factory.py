@@ -2,13 +2,17 @@ import inspect
 import itertools
 
 from django.db.models import Model
+from django.forms import Form
 
 from fixtureless import exceptions
-from fixtureless.generator import create_instance
+from fixtureless import generator
 from fixtureless.utils import list_get
 
 
 class Factory(object):
+    def __init__(self, obj_type):
+        self.obj_type = obj_type
+
     @staticmethod
     def _verify_kwargs(vals):
         def _error_nondict(x_0):
@@ -38,32 +42,39 @@ class Factory(object):
 
     def _resolve_args(self, *args):
         try:
-            if inspect.isclass(args[0]) and issubclass(args[0], Model):
+            if inspect.isclass(args[0]) and issubclass(args[0], self.obj_type):
                 model = args[0]
             else:
                 raise exceptions.InvalidArguments()
         except (IndexError, exceptions.InvalidArguments):
             msg = 'The fixtureless factory expects a Django model ({}) as' \
-                  ' the first argument.'.format(type(Model))
+                  ' the first argument.'.format(type(self.obj_type))
             raise exceptions.InvalidArguments(msg)
         kwargs_iter = self._handle_second_arg(*args)
         self._verify_kwargs(kwargs_iter)
         return model, kwargs_iter
 
+    def _create_instance(self, *args, **kwargs):
+        name = self.obj_type.__name__.lower()
+        func = getattr(generator, 'create_{}_instance'.format(name))
+        if func:
+            return func(*args, **kwargs)
+        raise NotImplemented('There are no generator create methods for {} type'.format(name))
+
     def _handle_build(self, *args):
-        model, kwargs_iter = self._resolve_args(*args)
-        return (create_instance(model, **(kwargs if kwargs else {}))
+        instance, kwargs_iter = self._resolve_args(*args)
+        return (self._create_instance(instance, **(kwargs if kwargs else {}))
                 for kwargs in kwargs_iter)
 
     def _order_and_build(self, *args):
-        if inspect.isclass(args[0]) and issubclass(args[0], Model):
+        if inspect.isclass(args[0]) and issubclass(args[0], self.obj_type):
             args = (args,)
         builds = itertools.starmap(self._handle_build, args)
         return itertools.chain.from_iterable(builds)
 
     def _deliver(self, *args, **kwargs):
         pipeline = self._order_and_build(*args)
-        objs = tuple(save_instances(pipeline) if kwargs['save'] else pipeline)
+        objs = tuple(self.save_instances(pipeline) if kwargs['save'] else pipeline)
         return objs if len(objs) > 1 else objs[0]
 
     def create(self, *args):
@@ -72,16 +83,35 @@ class Factory(object):
     def build(self, *args):
         return self._deliver(*args, save=False)
 
-
-def save_instances(iterable):
-    for instance in iterable:
-        instance.save()
-        yield instance
+    @staticmethod
+    def save_instances(iterable):
+        for instance in iterable:
+            instance.save()
+            yield instance
 
 
 def create(*args):
-    return Factory().create(*args)
+    """
+    This is the preferred interface for using fixtureless
+    :param args: Arguments are parsed in the factory.
+    :return: A (saved) model instance or list depending on the args
+    """
+    return Factory(Model).create(*args)
 
 
 def build(*args):
-    return Factory().build(*args)
+    """
+    This is the preferred interface for using fixtureless
+    :param args: Arguments are parsed in the factory.
+    :return: A model instance or list depending on the args
+    """
+    return Factory(Model).build(*args)
+
+
+def create_form(*args):
+    """
+    This is the preferred interface for using fixtureless
+    :param args: Arguments are parsed in the factory.
+    :return: A form instance or list depending on the args
+    """
+    return Factory(Form).create(*args)

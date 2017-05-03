@@ -2,8 +2,9 @@ import itertools
 from decimal import Decimal
 
 from django.test import TestCase
+from django.db.models import Model
 
-from fixtureless import Factory
+from fixtureless.factory import Factory
 from fixtureless.exceptions import InvalidArguments
 from fixtureless.factory import create, build
 from test_app.models import ModelOne, ModelTwo
@@ -11,7 +12,7 @@ from test_app.models import ModelOne, ModelTwo
 
 class FactoryTest(TestCase):
     def test_resolve_args(self):
-        factory = Factory()
+        factory = Factory(Model)
         with self.assertRaises(InvalidArguments) as _:
             factory._resolve_args()
 
@@ -24,7 +25,7 @@ class FactoryTest(TestCase):
         self.assertIsNone(initial[0])
 
     def test_verify_kwargs(self):
-        factory = Factory()
+        factory = Factory(Model)
 
         # invalid kwarg type
         val = 'invalid type'
