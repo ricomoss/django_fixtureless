@@ -169,7 +169,7 @@ class Generator(object):
 
         str_len = constants.DEFAULT_CHARFIELD_MAX_LEN
         if field.max_length is not None:
-            str_len = random.randint(0, field.max_length)
+            str_len = random.randint(1, field.max_length)
 
         return utils.random_str(str_len, char_set)
 
