@@ -1,7 +1,7 @@
 django-fixtureless
 ==================
 
-Fixtureless Testing Utility for Django.  (ver. 1.5.6)
+Fixtureless Testing Utility for Django.  (ver. 1.6)
 
 The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are often used to provide a set of mock data for testing purposes.  It is tedious to update all the fixtures upon a model update or to create a new set of fixtures if you want to test specific model parameters.  When the project contains a large amount of fixtures tests also begin to run slowly due to the load time. 
 
@@ -96,7 +96,7 @@ Example 1: Trivial Case - A single object:
 
     from my_app.models import Charge
 
-    charge = factory.create(Charge)
+    charge = create(Charge)
 
 
 Example 2: Model w/ single count:
@@ -106,7 +106,7 @@ Example 2: Model w/ single count:
     from my_app.models import Charge
 
     count = 1
-    charge = factory.create(Charge, count)
+    charge = create(Charge, count)
 
 
 Note:
@@ -121,7 +121,7 @@ Example 3: Model w/ multiple count::
     from my_app.models import Charge
 
     count = 5
-    charges = factory.create(Charge, count)
+    charges = create(Charge, count)
 
 
 Note:
@@ -139,7 +139,7 @@ Example 4: Model w/ single count and initial::
         'amount': '50',
         'description': 'test description',
     }
-    charge = factory.create(Charge, initial)
+    charge = create(Charge, initial)
 
 
 Note:
@@ -163,7 +163,7 @@ Example 5: Model w/ multi count and single initial::
     initial_list = list()
     for _ in itertools.repeat(None, count):
         initial_list.append(initial)
-    charges = factory.create(Charge, initial_list)
+    charges = create(Charge, initial_list)
 
 Note:
 
@@ -186,7 +186,7 @@ Example 6: Model /w multi count and multi initial::
         'description': 'test description 2',
     }
     initial_list = [initial1, initial2]
-    charges = factory.create(Charge, initial_list)
+    charges = create(Charge, initial_list)
 
 Note:
 
@@ -200,7 +200,7 @@ Example 7: Multi Model Trivial::
 
     from my_app.models import Charge, Customer
 
-    objs = factory.create((Charge, ), (Customer, ))
+    objs = create((Charge, ), (Customer, ))
 
 Note:
 
@@ -217,7 +217,7 @@ Example 8: Multi Model w/ counts::
     count1 = 1
     count2 = 2
     args = ((Charge, count1), (Customer, count2))
-    objs = factory.create(*args)
+    objs = create(*args)
 
 Note:
 
@@ -247,7 +247,7 @@ Example 9: Multi Model w/ counts and initial::
     for _ in itertools.repeat(None, count2):
         initial_list2.append(initial)
     args = ((Charge, initial_list1), (Customer, initial_list2))
-    objs = factory.create(*args)
+    objs = create(*args)
 
 Note:
 
@@ -286,7 +286,7 @@ Example 10: Multi Model w/ counts and multi initial::
     initial1_list = [initial1_1, initial1_2]
     initial2_list = [initial2_1, initial2_2, initial2_3]
     args = ((Charge, initial1_list), (Customer, initial2_list))
-    objs = factory.create(*args)
+    objs = create(*args)
 
 Note:
 
