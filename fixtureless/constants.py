@@ -8,7 +8,7 @@ MYSQL = 'mysql'
 
 DEFAULT_CHARFIELD_MAX_LEN = 255
 DEFAULT_TEXTFIELD_MAX_LEN = DEFAULT_CHARFIELD_MAX_LEN
-
+SLUGFIELD_CHARSET = string.ascii_letters + string.digits + '-_'
 CHARFIELD_CHARSET_ASCII = string.ascii_letters + string.digits \
     + string.punctuation + ' '
 EMAIL_CHARSET = string.ascii_letters + string.digits
