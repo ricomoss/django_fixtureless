@@ -1,7 +1,7 @@
 django-fixtureless
 ==================
 
-Fixtureless Testing Utility for Django.  (ver. 1.6.1)
+Fixtureless Testing Utility for Django.  (ver. 1.6.2)
 
 The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are often used to provide a set of mock data for testing purposes.  It is tedious to update all the fixtures upon a model update or to create a new set of fixtures if you want to test specific model parameters.  When the project contains a large amount of fixtures tests also begin to run slowly due to the load time. 
 
@@ -35,9 +35,7 @@ Releases and Branches
 
 The master branch is meant for release.  Upon an update to the master branch the version will increment according to the format: (major).(minor).(micro)
 
-The dev branch holds all approved updates to the django-fixtureless project until a release milestone is met, at which time dev will be merged into master.
-
-Development is done on branches from dev and merge via pull requests into dev. Everyone is encouraged to fork this repo and create pull requests with additions they would like to see in the project.
+Development is done on branches and merge via pull requests into master. Everyone is encouraged to fork this repo and create pull requests with additions they would like to see in the project.
 
 
 API Definition
