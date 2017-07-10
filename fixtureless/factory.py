@@ -115,3 +115,12 @@ def create_form(*args):
     :return: A form instance or list depending on the args
     """
     return Factory(Form).create(*args)
+
+
+def build_form(*args):
+    """
+    This is the preferred interface for using fixtureless
+    :param args: Arguments are parsed in the factory.
+    :return: A form instance or list depending on the args
+    """
+    return Factory(Form).build(*args)
