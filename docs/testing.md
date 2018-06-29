@@ -11,10 +11,10 @@ In django-fixtureless
     virtualenv.  If you do not activate your virtualenv, the python
     libraries will be installed globally.
 
-You'll need to ensure you've run the **syncdb** command for the PostgreSQL and MySQL databases.
+You'll need to ensure you've run the **migrate** command for the PostgreSQL and MySQL databases.
 
-    $ django-admin.py syncdb --settings=test_django_project.settings.postgres
-    $ django-admin.py syncdb --settings=test_django_project.settings.mysql
+    $ django-admin.py migrate --settings=test_django_project.settings.postgres
+    $ django-admin.py migrate --settings=test_django_project.settings.mysql
 
 We use Django's test commands to execute tests on django-fixtureless. This command should be run from
 **django-fixtureless/fixtureless/tests/test_django_project**.

@@ -3,8 +3,9 @@ from decimal import Decimal
 
 from django.test import TestCase
 from django.db.models.fields.files import FieldFile, ImageFieldFile
+from django.utils import six
 
-from test_app.models import ModelOne, ModelTwo
+from test_app.models import ModelOne, ModelTwo, ModelThree
 from test_app.forms import FormOne
 from fixtureless.generator import create_model_instance, create_form_instance
 from fixtureless.constants import POSTGRES_SMALLINT_MAX, POSTGRES_INT_MAX, PY3, POSTGRES_BIGINT_MAX
@@ -152,6 +153,17 @@ class ModelTwoTest(TestCase):
         self.assertIsInstance(self.model_two_rand.big_auto_field, int)
         exp = 0 <= self.model_two_rand.big_auto_field <= POSTGRES_BIGINT_MAX
         self.assertTrue(exp)
+
+
+class ModelThreeTest(TestCase):
+    def setUp(self):
+        self.model_three = create_model_instance(ModelThree)
+
+    def test_jsonfield(self):
+        self.assertIsInstance(self.model_three.json_field, six.string_types)
+        self.assertIsInstance(self.model_three.json_field_list, list)
+        self.assertIsInstance(self.model_three.json_field_dict, dict)
+        self.assertIsInstance(self.model_three.json_field_callable, dict)
 
 
 class FormOneTest(TestCase):
