@@ -323,7 +323,7 @@ class Generator(object):
     def _generate_jsonfield(**kwargs):
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default
+            return field.default() if callable(field.default) else field.default
         return json.dumps(utils.get_random_dict())
 
     @staticmethod

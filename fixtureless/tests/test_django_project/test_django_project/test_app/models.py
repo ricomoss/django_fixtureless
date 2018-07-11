@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 try:
     from timezone_field import TimeZoneField
@@ -36,8 +37,20 @@ class ModelOne(models.Model):
 
 
 class ModelTwo(models.Model):
-    foreign_key = models.ForeignKey(ModelOne, related_name='modeltwo_fk')
+    foreign_key = models.ForeignKey(
+        ModelOne, related_name='modeltwo_fk', on_delete=models.CASCADE)
     one_to_one = models.OneToOneField(
-        ModelOne, related_name='modeltwo_one2one')
+        ModelOne, related_name='modeltwo_one2one', on_delete=models.CASCADE)
     char_field = models.CharField(max_length=20)
     big_auto_field = models.BigAutoField(primary_key=True)
+
+
+def supply_default():
+    return {'method_name': 'supply_default'}
+
+
+class ModelThree(models.Model):
+    json_field = JSONField()
+    json_field_list = JSONField(default=list)
+    json_field_dict = JSONField(default=dict)
+    json_field_callable = JSONField(default=supply_default)
