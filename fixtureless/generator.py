@@ -33,9 +33,12 @@ class Generator(object):
         try:
             func = getattr(self, callable_name)
         except AttributeError:
-            msg = 'fixtureless does not support the field type: {}'.format(
-                type(field).__name__)
-            raise AttributeError(msg)
+            if field.default != NOT_PROVIDED:
+                func = self._generate_field_with_default
+            else:
+                msg = 'fixtureless does not support the field type {} ' \
+                      'without a default'.format(type(field).__name__)
+                raise AttributeError(msg)
         val = func(**kwargs)
         if hasattr(field, 'unique') and field.unique:
             while not self._val_is_unique(val, field):
@@ -90,18 +93,16 @@ class Generator(object):
     def _generate_onetoonefield(self, **kwargs):
         return self._generate_foreignkey(**kwargs)
 
-    @staticmethod
-    def _generate_dictionaryfield(**kwargs):
+    def _generate_dictionaryfield(self, **kwargs):
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         return {}
 
-    @staticmethod
-    def _generate_integerrangefield(**kwargs):
+    def _generate_integerrangefield(self, **kwargs):
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         return random.randint(field.min_value, field.max_value)
 
     def _generate_storefield(self, **kwargs):
@@ -110,7 +111,7 @@ class Generator(object):
     def _generate_decimalfield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         len_int_part = field.max_digits - field.decimal_places
         # Add a scaling factor here to help prevent overflowing the
         # Decimal fields when doing summming, etc. This still won't
@@ -135,13 +136,12 @@ class Generator(object):
         val = decimal.Decimal('{}.{}'.format(int_part, fractional_part))
         return val
 
-    @staticmethod
     @utils.deprecated
-    def _generate_ipaddressfield(**kwargs):
+    def _generate_ipaddressfield(self, **kwargs):
         """ Currently only IPv4 fields. """
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         num_octets = 4
         octets = [str(random.randint(0, 255)) for n in range(num_octets)]
         return '.'.join(octets)
@@ -150,7 +150,7 @@ class Generator(object):
         """ Currently only IPv4 fields. """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         num_octets = 4
         octets = [str(random.randint(0, 255)) for n in range(num_octets)]
         return '.'.join(octets)
@@ -162,7 +162,7 @@ class Generator(object):
 
     def _generate_with_char_set(self, char_set, field):
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(field=field)
         # Use a choice if this field has them defined.
         if self.is_model and len(field.choices) > 0:
             return random.choice(field.choices)[0]
@@ -177,7 +177,7 @@ class Generator(object):
         field = kwargs['field']
         instance = kwargs['instance']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         # An issue with MySQL databases, which requires a manual modification
         # to the database, prevents unicode.
         if self.is_model and self._get_db_type(instance) == constants.MYSQL:
@@ -204,7 +204,7 @@ class Generator(object):
     def _generate_slugfield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         str_len = constants.DEFAULT_CHARFIELD_MAX_LEN
         if field.max_length is not None:
             str_len = random.randint(0, field.max_length)
@@ -215,21 +215,21 @@ class Generator(object):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
-            return field.default()
+            return self._generate_field_with_default(**kwargs)()
         return timezone.now()
 
     def _generate_datefield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
-            return field.default()
+            return self._generate_field_with_default(**kwargs)()
         return timezone.now().today()
 
     def _generate_timefield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
-            return field.default()
+            return self._generate_field_with_default(**kwargs)()
         return timezone.now().time()
 
     def _get_integer_limits(self, field, connection_obj=connection):
@@ -253,14 +253,14 @@ class Generator(object):
     def _generate_smallintegerfield(self, **kwargs):
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         limits = self._get_integer_limits(field)
         return random.randint(*limits)
 
     def _generate_integerfield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         limits = self._get_integer_limits(field)
         return random.randint(*limits)
 
@@ -271,21 +271,21 @@ class Generator(object):
     def _generate_floatfield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         limits = self._get_float_limits()
         return random.uniform(*limits)
 
     def _generate_positiveintegerfield(self, **kwargs):
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
     def _generate_positivesmallintegerfield(self, **kwargs):
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
@@ -302,7 +302,7 @@ class Generator(object):
     def _generate_booleanfield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
         if not self.is_model:
             return random.choice([True, None])
         return random.choice([True, False])
@@ -310,7 +310,7 @@ class Generator(object):
     def _generate_emailfield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
-            return field.default
+            return self._generate_field_with_default(**kwargs)
 
         max_length = field.max_length or 30
         val_len = random.randint(1, int(max_length/2 - 5))
@@ -319,12 +319,19 @@ class Generator(object):
             utils.random_str(val_len, constants.EMAIL_CHARSET),
             utils.random_str(3, constants.EMAIL_CHARSET))
 
-    @staticmethod
-    def _generate_jsonfield(**kwargs):
+    def _generate_jsonfield(self, **kwargs):
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
-            return field.default() if callable(field.default) else field.default
+            return self._generate_field_with_default(**kwargs)
         return json.dumps(utils.get_random_dict())
+
+    @staticmethod
+    def _generate_field_with_default(**kwargs):
+        """Only called if field.default != NOT_PROVIDED"""
+        field = kwargs['field']
+        if callable(field.default):
+            return field.default()
+        return field.default
 
     @staticmethod
     def _get_db_type(instance):
