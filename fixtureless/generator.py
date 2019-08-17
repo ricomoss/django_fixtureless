@@ -215,21 +215,21 @@ class Generator(object):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
-            return self._generate_field_with_default(**kwargs)()
+            return self._generate_field_with_default(**kwargs)
         return timezone.now()
 
     def _generate_datefield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
-            return self._generate_field_with_default(**kwargs)()
+            return self._generate_field_with_default(**kwargs)
         return timezone.now().today()
 
     def _generate_timefield(self, **kwargs):
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
-            return self._generate_field_with_default(**kwargs)()
+            return self._generate_field_with_default(**kwargs)
         return timezone.now().time()
 
     def _get_integer_limits(self, field, connection_obj=connection):

@@ -1,5 +1,7 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.utils import timezone
+
 try:
     from timezone_field import TimeZoneField
 except ImportError:
@@ -34,6 +36,7 @@ class ModelOne(models.Model):
 
     file_field = models.FileField(upload_to='./')
     auto_now_add_field = models.DateTimeField(auto_now_add=True)
+    datetime_with_default = models.DateTimeField(default=timezone.now)
 
 
 class ModelTwo(models.Model):

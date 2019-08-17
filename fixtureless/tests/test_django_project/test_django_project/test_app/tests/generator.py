@@ -125,6 +125,9 @@ class ModelOneTest(TestCase):
     def test_auto_now_add_field(self):
         self.assertIsInstance(self.model_one.auto_now_add_field, datetime.datetime)
 
+    def test_datetime_with_default(self):
+        self.assertIsInstance(self.model_one.datetime_with_default, datetime.datetime)
+
 
 class ModelTwoTest(TestCase):
     def setUp(self):
