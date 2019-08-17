@@ -1,24 +1,17 @@
-import sys
 import decimal
 import math
 import random
 import json
 
-from django.db import models
-from django.db import connection
+from django.db import models, connection
 from django.db.models.fields import NOT_PROVIDED
 from django.conf import settings
 from django.utils import timezone
 
-from django.core.exceptions import SuspiciousFileOperation
-
-from fixtureless import constants
-from fixtureless import utils
-
-PY3 = sys.version_info.major == 3
+from fixtureless import constants, utils
 
 
-class Generator(object):
+class Generator:
     def __init__(self, instance_type=None):
         self.is_model = instance_type == models.Model
 
@@ -27,17 +20,17 @@ class Generator(object):
     def get_val(self, **kwargs):
         field = kwargs['field']
         if isinstance(field, str):
-            callable_name = '_generate_{}'.format(field)
+            callable_name = f'_generate_{field}'
         else:
-            callable_name = '_generate_{}'.format(type(field).__name__.lower())
+            callable_name = f'_generate_{type(field).__name__.lower()}'
         try:
             func = getattr(self, callable_name)
         except AttributeError:
             if field.default != NOT_PROVIDED:
                 func = self._generate_field_with_default
             else:
-                msg = 'fixtureless does not support the field type {} ' \
-                      'without a default'.format(type(field).__name__)
+                msg = f'fixtureless does not support the field type {type(field).__name__} ' \
+                      'without a default'
                 raise AttributeError(msg)
         val = func(**kwargs)
         if hasattr(field, 'unique') and field.unique:
@@ -60,23 +53,9 @@ class Generator(object):
         return field.model.objects.filter(**{field_name: val}).count() == 0
 
     @staticmethod
-    @utils.deprecated
-    def _generate_timezonefield(**kwargs):
-        field = kwargs['field']
-        import pytz
-        if field.default != NOT_PROVIDED:
-            return pytz.timezone(field.default)
-        return pytz.UTC
-
-    @staticmethod
     def _generate_foreignkey(**kwargs):
         field = kwargs['field']
-        try:
-            # Django >= 1.10
-            klass = field.remote_field.model
-        except AttributeError:
-            # Django 1.8 - 1.9
-            klass = field.related.model
+        klass = field.remote_field.model
 
         instance = None
         if not field.unique:
@@ -113,10 +92,9 @@ class Generator(object):
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
         len_int_part = field.max_digits - field.decimal_places
-        # Add a scaling factor here to help prevent overflowing the
-        # Decimal fields when doing summming, etc. This still won't
-        # protect tiny dec fields (1 or 2 digits before the decimal),
-        # but should cover most use cases.
+        # Add a scaling factor here to help prevent overflowing the Decimal fields when doing
+        # summing, etc. This still won't protect tiny dec fields (1 or 2 digits before the
+        # decimal), but should cover most use cases.
         len_int_part = int(math.floor(math.sqrt(len_int_part)))
         if len_int_part == 0:
             len_fractional_part = random.randint(0, field.decimal_places)
@@ -135,16 +113,6 @@ class Generator(object):
         # otherwise it will be rounded!
         val = decimal.Decimal('{}.{}'.format(int_part, fractional_part))
         return val
-
-    @utils.deprecated
-    def _generate_ipaddressfield(self, **kwargs):
-        """ Currently only IPv4 fields. """
-        field = kwargs['field']
-        if field.default != NOT_PROVIDED:
-            return self._generate_field_with_default(**kwargs)
-        num_octets = 4
-        octets = [str(random.randint(0, 255)) for n in range(num_octets)]
-        return '.'.join(octets)
 
     def _generate_genericipaddressfield(self, **kwargs):
         """ Currently only IPv4 fields. """
@@ -381,16 +349,10 @@ def create_model_instance(klass, **kwargs):
                     and is_related_model):
                 val = Generator(models.Model).get_val(instance=instance, field=field)
                 # Not worrying about creating file objects on disk
-                if PY3:
-                    try:
-                        setattr(instance, field.name, val)
-                    except (FileNotFoundError, OSError):
-                        pass
-                else:
-                    try:
-                        setattr(instance, field.name, val)
-                    except (IOError, OSError, SuspiciousFileOperation):
-                        pass
+                try:
+                    setattr(instance, field.name, val)
+                except (FileNotFoundError, OSError):
+                    pass
     return instance
 
 

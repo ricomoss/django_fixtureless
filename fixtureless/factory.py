@@ -18,8 +18,8 @@ class Factory(object):
         def _error_nondict(x_0):
             if not isinstance(x_0, dict) and x_0 is not None:
                 raise exceptions.InvalidArguments(
-                    'The fixtureless factory expected kwargs of type dict'
-                    ' and was given type {}'.format(type(x_0)))
+                    f'The fixtureless factory expected kwargs of type dict'
+                    f' and was given type {type(x_0)}')
 
         if isinstance(vals, (list, tuple)):
             for x in vals:
@@ -47,8 +47,8 @@ class Factory(object):
             else:
                 raise exceptions.InvalidArguments()
         except (IndexError, exceptions.InvalidArguments):
-            msg = 'The fixtureless factory expects a Django model ({}) as' \
-                  ' the first argument.'.format(type(self.obj_type))
+            msg = f'The fixtureless factory expects a Django model ({type(self.obj_type)}) as' \
+                  ' the first argument.'
             raise exceptions.InvalidArguments(msg)
         kwargs_iter = self._handle_second_arg(*args)
         self._verify_kwargs(kwargs_iter)
@@ -56,10 +56,10 @@ class Factory(object):
 
     def _create_instance(self, *args, **kwargs):
         name = self.obj_type.__name__.lower()
-        func = getattr(generator, 'create_{}_instance'.format(name))
+        func = getattr(generator, f'create_{name}_instance')
         if func:
             return func(*args, **kwargs)
-        raise NotImplemented('There are no generator create methods for {} type'.format(name))
+        raise NotImplemented(f'There are no generator create methods for {name} type')
 
     def _handle_build(self, *args):
         instance, kwargs_iter = self._resolve_args(*args)
