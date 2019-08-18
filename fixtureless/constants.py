@@ -1,9 +1,11 @@
+"""
+Constants for use throughout the project.
+"""
 import sys
 import unicodedata as ud
 import string
 
 
-PY3 = sys.version_info.major == 3
 MYSQL = 'mysql'
 
 DEFAULT_CHARFIELD_MAX_LEN = 255
@@ -19,18 +21,11 @@ EMAIL_CHARSET = string.ascii_letters + string.digits
 _MAX_UNICODE = 65536
 
 _UNICODE_CHARSET_CATEGORIES = ['Lu', 'Ll', 'Pc', 'Pi', 'Pf', 'Sm', 'Sc']
-if PY3:
-    all_unicode = [chr(i) for i in range(_MAX_UNICODE)]
-    unicode_letters = [c for c in all_unicode
-                       if ud.category(c) in _UNICODE_CHARSET_CATEGORIES]
-    unicode_letters.append(' ')
-    CHARFIELD_CHARSET_UNICODE = ''.join(unicode_letters)
-else:
-    all_unicode = [unichr(i) for i in xrange(_MAX_UNICODE)]
-    unicode_letters = [c for c in all_unicode
-                       if ud.category(c) in _UNICODE_CHARSET_CATEGORIES]
-    unicode_letters.append(u' ')
-    CHARFIELD_CHARSET_UNICODE = u''.join(unicode_letters)
+ALL_UNICODE = [chr(i) for i in range(_MAX_UNICODE)]
+UNICODE_LETTERS = [c for c in ALL_UNICODE
+                   if ud.category(c) in _UNICODE_CHARSET_CATEGORIES]
+UNICODE_LETTERS.append(' ')
+CHARFIELD_CHARSET_UNICODE = ''.join(UNICODE_LETTERS)
 
 # see http://docs.python.org/3.3/library/stdtypes.html#numeric-types-int-float-long-complex
 INTFIELD_MAX = sys.maxsize
@@ -53,5 +48,3 @@ AUTO_FIELD_NAME = 'auto_field'
 # Django does not allow these fields to be "blank" but for the purposes of
 # django-fixtureless we need to be able to generate values for these fields.
 SPECIAL_FIELDS = (BOOLEAN_FIELD_NAME, AUTO_FIELD_NAME)
-
-

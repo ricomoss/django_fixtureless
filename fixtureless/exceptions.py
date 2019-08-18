@@ -1,3 +1,10 @@
+"""
+Custom exception types
+"""
+
 
 class InvalidArguments(Exception):
-    pass
+    """
+    Custom exception for invalid arguments
+    """
+    pass  # pylint: disable=unnecessary-pass

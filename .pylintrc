@@ -1,0 +1,35 @@
+[MASTER]
+# Use multiple processes to speed up Pylint.
+jobs=4
+
+# Custom Params
+ignore=settings,tests
+ignore-patterns=.*local.*
+
+[pre-commit-hook]
+limit=10.0
+
+[REPORTS]
+output-format=parseable
+
+[MESSAGES CONTROL]
+# Pylint doesn't understand Django's model inheritance and abstract classes
+#   E1101: No member of abstract class
+
+[TYPECHECK]
+# List of module names for which member attributes should not be checked
+# (useful for modules/projects where namespaces are manipulated during runtime
+# and thus existing member attributes cannot be deduced by static analysis
+ignored-modules=distutils,distutils.util,_MovedItems
+
+# Unnecessary suggestions
+#   R0903: Too few public methods
+#   R0913: Too many arguments
+#   R0901: Too many ancestors
+#   R0902: Too many instance attributes
+#
+# Python 2/3 Compatibility Stuff
+#   C0325: Unnecessary parens
+
+# Disable the message(s) with the given id(s).
+#disable=E1101,R0903,R0913,R0901,R0902,R0914,C0325

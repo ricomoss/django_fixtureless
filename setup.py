@@ -1,6 +1,9 @@
+"""
+Setup file for packaging
+"""
 from distutils.core import setup
 
-version = ''
+VERSION = ''
 
 LONG_DESCRIPTION = """
 =====================================
@@ -20,7 +23,7 @@ objects in the same fashion.
 
 setup(
     name='django-fixtureless',
-    version=version,
+    version=VERSION,
     author='Rico Cordova',
     author_email='rico.cordova@rocksolidbox.com',
     packages=['fixtureless'],

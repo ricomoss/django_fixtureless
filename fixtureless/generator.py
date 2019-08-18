@@ -1,23 +1,36 @@
+"""
+Generators for building instance field types.
+"""
 import decimal
+import json
 import math
 import random
-import json
+import string
 
+from django.conf import settings
 from django.db import models, connection
 from django.db.models.fields import NOT_PROVIDED
-from django.conf import settings
 from django.utils import timezone
 
 from fixtureless import constants, utils
 
 
-class Generator:
+class Generator:  # pylint: disable=too-few-public-methods
+    """
+    Generator class for organizing the generator methods
+    """
     def __init__(self, instance_type=None):
         self.is_model = instance_type == models.Model
 
     USE_TZ = getattr(settings, 'USE_TZ', False)
 
     def get_val(self, **kwargs):
+        """
+        Extracts info from kwargs to call the correct generator and return the value.
+
+        :param kwargs: Keyword arguments passed in
+        :return: Generated value
+        """
         field = kwargs['field']
         if isinstance(field, str):
             callable_name = f'_generate_{field}'
@@ -42,6 +55,10 @@ class Generator:
     def _val_is_unique(val, field):
         """
         Currently only checks the field's uniqueness, not the model validation.
+
+        :param val: Value to be checked
+        :param field: Field object
+        :return: True, if the value is unique; False otherwise.
         """
         if val is None:
             return False
@@ -54,6 +71,12 @@ class Generator:
 
     @staticmethod
     def _generate_foreignkey(**kwargs):
+        """
+        Generate a FK
+
+        :param kwargs: Keyword arguments
+        :return: An instance of a FK field
+        """
         field = kwargs['field']
         klass = field.remote_field.model
 
@@ -70,24 +93,55 @@ class Generator:
         return instance
 
     def _generate_onetoonefield(self, **kwargs):
+        """
+        Generate a one to one field
+
+        :param kwargs: Keyword arguments
+        :return: An instance of a FK field (treated the same)
+        """
         return self._generate_foreignkey(**kwargs)
 
     def _generate_dictionaryfield(self, **kwargs):
+        """
+        Generates a dictionary field type (postgres)
+
+        :param kwargs: Keyword arguments
+        :return: A dictionary field instance,
+            if default values are provide; An empty dictionary otherwise.
+        """
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
         return {}
 
     def _generate_integerrangefield(self, **kwargs):
+        """
+        Generates an integer range field.
+
+        :param kwargs: Keyword arguments
+        :return: An integer range field instance
+        """
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
         return random.randint(field.min_value, field.max_value)
 
     def _generate_storefield(self, **kwargs):
+        """
+        Generate a store field
+
+        :param kwargs: Keyword arguments
+        :return: A dictionary field (treated the same)
+        """
         return self._generate_dictionaryfield(**kwargs)
 
     def _generate_decimalfield(self, **kwargs):
+        """
+        Generate a decimal field
+
+        :param kwargs: Keyword arguments
+        :return: A decimal field
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -115,24 +169,42 @@ class Generator:
         return val
 
     def _generate_genericipaddressfield(self, **kwargs):
-        """ Currently only IPv4 fields. """
+        """
+        Generate a random IP "looking" value  (currently only IPv4)
+
+        :param kwargs: Keyword arguments
+        :return: A string with an "IP" value
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
         num_octets = 4
-        octets = [str(random.randint(0, 255)) for n in range(num_octets)]
+        octets = [str(random.randint(0, 255)) for _ in range(num_octets)]
         return '.'.join(octets)
 
     @staticmethod
     def _generate_choicefield(**kwargs):
+        """
+        Generate a choice field
+
+        :param kwargs: Keyword arguments
+        :return: A choice field
+        """
         field = kwargs['field']
         return random.choice(field.choices)[0]
 
     def _generate_with_char_set(self, char_set, field):
+        """
+        Generate a character set
+
+        :param char_set: Character set type
+        :param field: Field object
+        :return: A random string
+        """
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(field=field)
         # Use a choice if this field has them defined.
-        if self.is_model and len(field.choices) > 0:
+        if self.is_model and field.choices:
             return random.choice(field.choices)[0]
 
         str_len = constants.DEFAULT_CHARFIELD_MAX_LEN
@@ -142,6 +214,12 @@ class Generator:
         return utils.random_str(str_len, char_set)
 
     def _generate_charfield(self, **kwargs):
+        """
+        Generate a character field
+
+        :param kwargs: Keyword arguments
+        :return: A character field
+        """
         field = kwargs['field']
         instance = kwargs['instance']
         if self.is_model and field.default != NOT_PROVIDED:
@@ -155,21 +233,51 @@ class Generator:
             constants.CHARFIELD_CHARSET_UNICODE, field)
 
     def _generate_imagefield(self, **kwargs):
+        """
+        Generate an image field
+
+        :param kwargs: Keyword arguments
+        :return: A generated character field (treated the same)
+        """
         return self._generate_charfield(**kwargs)
 
     def _generate_filefield(self, **kwargs):
+        """
+        Generate a field field
+
+        :param kwargs: Keyword arguments
+        :return: A generated character field (treated the same)
+        """
         return self._generate_charfield(**kwargs)
 
     def _generate_textfield(self, **kwargs):
+        """
+        Generate a text field
+
+        :param kwargs: Keyword arguments
+        :return: A generated character field (treated the same)
+        """
         return self._generate_charfield(**kwargs)
 
-    def _generate_urlfield(self, **kwargs):
-        import string
+    @staticmethod
+    def _generate_urlfield(_):
+        """
+        Generate a random URL Field
+
+        :param _: Necessary for signature
+        :return: A random URL
+        """
         subdomain = utils.random_str(10, string.ascii_letters)
         domain = utils.random_str(10, string.ascii_letters)
         return 'http://{}.{}.com'.format(subdomain, domain)
 
     def _generate_slugfield(self, **kwargs):
+        """
+        Generate a slug field
+
+        :param kwargs: Keyword arguments
+        :return: A random string
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -180,6 +288,12 @@ class Generator:
         return utils.random_str(str_len, constants.SLUGFIELD_CHARSET)
 
     def _generate_datetimefield(self, **kwargs):
+        """
+        Generate a datetime field
+
+        :param kwargs: Keyword arguments
+        :return: A datetime field
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
@@ -187,6 +301,12 @@ class Generator:
         return timezone.now()
 
     def _generate_datefield(self, **kwargs):
+        """
+        Generate a date field
+
+        :param kwargs: Keyword arguments
+        :return: A date field
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
@@ -194,6 +314,12 @@ class Generator:
         return timezone.now().today()
 
     def _generate_timefield(self, **kwargs):
+        """
+        Generate a time field
+
+        :param kwargs: Keyword arguments
+        :return: A time field
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED and \
                 hasattr(field.default, '__call__'):
@@ -201,6 +327,13 @@ class Generator:
         return timezone.now().time()
 
     def _get_integer_limits(self, field, connection_obj=connection):
+        """
+        Get integer limits for a given field
+
+        :param field: Field to check
+        :param connection_obj: The connection for determine DB type
+        :return: A tuple of limit values
+        """
         if not self.is_model:
             return constants.POSTGRES_SMALLINT_MIN, constants.POSTGRES_SMALLINT_MAX
 
@@ -219,6 +352,12 @@ class Generator:
         return limits
 
     def _generate_smallintegerfield(self, **kwargs):
+        """
+        Generate a small integer field
+
+        :param kwargs: Keyword arguments
+        :return: A "small" random number
+        """
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -226,24 +365,38 @@ class Generator:
         return random.randint(*limits)
 
     def _generate_integerfield(self, **kwargs):
+        """
+        Generate an integer field
+
+        :param kwargs: Keyword arguments
+        :return: A random number
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
         limits = self._get_integer_limits(field)
         return random.randint(*limits)
 
-    @staticmethod
-    def _get_float_limits():
-        return constants.FLOATFIELD_MIN, constants.FLOATFIELD_MAX
-
     def _generate_floatfield(self, **kwargs):
+        """
+        Generate a float field
+
+        :param kwargs: Keyword arguments
+        :return: A float field
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
-        limits = self._get_float_limits()
+        limits = (constants.FLOATFIELD_MIN, constants.FLOATFIELD_MAX)
         return random.uniform(*limits)
 
     def _generate_positiveintegerfield(self, **kwargs):
+        """
+        Generate a positive integer field
+
+        :param kwargs: Keyword arguments
+        :return: A positive integer
+        """
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -251,6 +404,12 @@ class Generator:
         return random.randint(0, limits[1])
 
     def _generate_positivesmallintegerfield(self, **kwargs):
+        """
+        Generate a positive small integer field
+
+        :param kwargs: Keyword arguments
+        :return: A positive "small" integer
+        """
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -258,16 +417,34 @@ class Generator:
         return random.randint(0, limits[1])
 
     def _generate_autofield(self, **kwargs):
+        """
+        Generate an auto field
+
+        :param kwargs: Keyword arguments
+        :return: A random number
+        """
         field = kwargs['field']
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
     def _generate_bigautofield(self, **kwargs):
+        """
+        Generate a big auto field
+
+        :param kwargs: Keyword arguments
+        :return: A "big" random number
+        """
         field = kwargs['field']
         limits = self._get_integer_limits(field)
         return random.randint(0, limits[1])
 
     def _generate_booleanfield(self, **kwargs):
+        """
+        Generate a boolean field
+
+        :param kwargs: Keyword arguments
+        :return: A random boolean
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -276,6 +453,12 @@ class Generator:
         return random.choice([True, False])
 
     def _generate_emailfield(self, **kwargs):
+        """
+        Generate an email field
+
+        :param kwargs: Keyword arguments
+        :return: A random email string
+        """
         field = kwargs['field']
         if self.is_model and field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -288,6 +471,12 @@ class Generator:
             utils.random_str(3, constants.EMAIL_CHARSET))
 
     def _generate_jsonfield(self, **kwargs):
+        """
+        Generate a JSON field
+
+        :param kwargs: Keyword arguments
+        :return: A JSON object
+        """
         field = kwargs['field']
         if field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
@@ -295,7 +484,12 @@ class Generator:
 
     @staticmethod
     def _generate_field_with_default(**kwargs):
-        """Only called if field.default != NOT_PROVIDED"""
+        """
+        Generate a field with defaults.  Only called if field.default != NOT_PROVIDED
+
+        :param kwargs: Keyword arguments
+        :return: The default value given
+        """
         field = kwargs['field']
         if callable(field.default):
             return field.default()
@@ -303,13 +497,26 @@ class Generator:
 
     @staticmethod
     def _get_db_type(instance):
+        """
+        Get the DB type
+
+        :param instance: The instance object
+        :return: The DB engine being used.
+        """
         db_name = 'default'
-        if instance._state.db is not None:
-            db_name = instance._state.db
+        if instance._state.db is not None:  # pylint: disable=protected-access
+            db_name = instance._state.db  # pylint: disable=protected-access
         return settings.DATABASES[db_name]['ENGINE'].split('.')[-1]
 
 
 def _should_autogen_data(field, kwargs):
+    """
+    Determine if a field should be auto generated.
+
+    :param field: The field in question
+    :param kwargs: Keyword arguments
+    :return: True, if the field should be generated; False otherwise.
+    """
     if field.name in kwargs:
         return False
 
@@ -326,9 +533,16 @@ def _should_autogen_data(field, kwargs):
 
 
 def create_model_instance(klass, **kwargs):
+    """
+    Handler for creating the model instance
+
+    :param klass: The model class to be used.
+    :param kwargs: Keyword arguments
+    :return: A model instance
+    """
     instance = klass(**kwargs)
     # .local_fields:
-    for field in instance._meta.fields:
+    for field in instance._meta.fields:  # pylint: disable=protected-access
         # Don't autogen data that's been provided or if the field can be blank
         if _should_autogen_data(field, kwargs):
             # Don't set a OneToOneField if it is the pointer to a parent
@@ -357,6 +571,13 @@ def create_model_instance(klass, **kwargs):
 
 
 def create_form_instance(klass, **kwargs):
+    """
+    Handler for creating a form instance
+
+    :param klass: The form class to be used.
+    :param kwargs: Keyword arguments
+    :return: A form instance
+    """
     instance = klass(kwargs)
     for field_name, field_type in instance.fields.items():
         if instance.data.get(field_name):
