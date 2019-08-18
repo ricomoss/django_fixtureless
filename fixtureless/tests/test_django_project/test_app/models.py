@@ -2,11 +2,6 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils import timezone
 
-try:
-    from timezone_field import TimeZoneField
-except ImportError:
-    from django.db.models import DateTimeField as TimeZoneField
-
 
 class ModelOne(models.Model):
     decimal_field = models.DecimalField(decimal_places=2, max_digits=10)
@@ -25,7 +20,7 @@ class ModelOne(models.Model):
     email_field = models.EmailField()
     url_field = models.URLField()
     time_field = models.TimeField()
-    timezone_field = TimeZoneField(default='America/Denver')
+    timezone_field = models.DateTimeField(default='America/Denver')
     float_field = models.FloatField()
 
     image_field = models.ImageField(

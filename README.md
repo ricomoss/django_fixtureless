@@ -1,7 +1,7 @@
-django-fixtureless
-==================
+# django_fixtureless
 
-Fixtureless Testing Utility for Django.  (ver. 1.6.4)
+
+Fixtureless Testing Utility for Django.  (ver. 2.0)
 
 The purpose behind fixtureless is to provide a fast and easy way to create test objects in Django.  Fixtures are often used to provide a set of mock data for testing purposes.  It is tedious to update all the fixtures upon a model update or to create a new set of fixtures if you want to test specific model parameters.  When the project contains a large amount of fixtures tests also begin to run slowly due to the load time. 
 
@@ -11,16 +11,15 @@ Fixtureless is meant to bypass all this.  You can create a fixtureless object gi
 Requirements
 ------------
 
-1. Django 1.8 - 1.11
-2. Python (2.7+ or 3.3+)
+1. Django 2.1, 2.2
+2. Python 3.6, 3.7
 
 Supports
 --------
 
 1. PostgreSQL
 2. SQLite
-3. MySQL (Only Python 2.7+)
-4. django-timezone-field (As of ver. 1.2.0)
+3. MySQL
 
 Install
 -------

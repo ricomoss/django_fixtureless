@@ -16,7 +16,7 @@ This guide will help you set up your development environment for fixtureless.
 
 1. Install some required packages:
 
-        $ sudo apt-get install python3.6-dev python3.7-dev python-pip
+        $ sudo apt-get install python3.6-dev python3.7-dev python-pip 
 
 1.  Install virtualenv and virtualenvwrapper:
 

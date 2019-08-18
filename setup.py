@@ -3,7 +3,7 @@ Setup file for packaging
 """
 from distutils.core import setup
 
-VERSION = ''
+VERSION = '2.0'
 
 LONG_DESCRIPTION = """
 =====================================
