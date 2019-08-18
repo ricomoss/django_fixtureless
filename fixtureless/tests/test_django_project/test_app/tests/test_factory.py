@@ -10,14 +10,7 @@ from fixtureless.factory import create, build
 from test_app.models import ModelOne, ModelTwo
 
 
-def _check_models(models, count, initial1):
-    assert len(models) == count
-    assert isinstance(models[0], ModelOne)
-    assert models[0].decimal_field == initial1['decimal_field']
-    assert isinstance(models[1], ModelOne)
-    assert models[1].decimal_field == initial1['decimal_field']
-
-
+@pytest.mark.django_db
 class TestFactory:
     @staticmethod
     def test_resolve_args():
@@ -97,7 +90,7 @@ class TestFactory:
 
     # Model w/ multi count and single initial
     @staticmethod
-    def test_build_with_multi_count_and_single_initial(self):
+    def test_build_with_multi_count_and_single_initial():
         count = 2
         initial1 = {
             'decimal_field': Decimal('10.00')
@@ -107,7 +100,11 @@ class TestFactory:
             initial_list.append(initial1)
         args = (ModelOne, initial_list)
         models = build(*args)
-        _check_models(models, count, initial1)
+        assert len(models) == count
+        assert isinstance(models[0], ModelOne)
+        assert models[0].decimal_field == initial1['decimal_field']
+        assert isinstance(models[1], ModelOne)
+        assert models[1].decimal_field == initial1['decimal_field']
 
     # Model w/ multi count and multi initial
     @staticmethod
@@ -121,7 +118,11 @@ class TestFactory:
         }
         args = (ModelOne, [initial1, initial2])
         models = build(*args)
-        _check_models(models, count, initial1)
+        assert len(models) == count
+        assert isinstance(models[0], ModelOne)
+        assert models[0].decimal_field == initial1['decimal_field']
+        assert isinstance(models[1], ModelOne)
+        assert models[1].decimal_field == initial2['decimal_field']
 
     # Multi Model Trivial
     @staticmethod

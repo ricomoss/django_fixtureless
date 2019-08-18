@@ -2,3 +2,4 @@ django
 pillow
 psycopg2
 pytest
+pytest-django
