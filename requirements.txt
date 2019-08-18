@@ -1,4 +1,5 @@
 django
+mysqlclient
 pillow
 psycopg2
 pylint

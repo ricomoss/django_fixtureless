@@ -260,7 +260,7 @@ class Generator:  # pylint: disable=too-few-public-methods
         return self._generate_charfield(**kwargs)
 
     @staticmethod
-    def _generate_urlfield(_):
+    def _generate_urlfield(**_):
         """
         Generate a random URL Field
 

@@ -1,70 +1,49 @@
-Virtual Environment Setup
-=========================
+# Virtual Environment Setup
 
-This guide will help you set up your development environment for django-fixtureless.
+This guide will help you set up your development environment for fixtureless.
 
-Linux Installation (Ubuntu/Debian)
-==================================
+## Linux Installation (Ubuntu/Debian)
 
-By following these steps, you can easily have a working installation of the django-fixtureless development environment.
 
-**Note**:
+**Note**:  The following will assume you are cloning the django_fixtureless sourcecode to **~/django_fixtureless**.  If you are cloning to a different location, you will need to adjust these instructions accordingly.
 
-    The following will assume you are cloning the django-fixtureless sourcecode
-    to **~/django-fixtureless**.  If you are cloning to a different location,
-    you will need to adjust these instructions accordingly.
-
-**Note**
-
-    A dollar sign ($) indicates a terminal prompt, as your user, not root.
+**Note**:  A dollar sign ($) indicates a terminal prompt, as your user, not root.
 
 1.  Clone the source:
 
         $ cd ~
-        $ git clone git@github.com:ricomoss/django-fixtureless.git
+        $ git clone git@github.com:ricomoss/django_fixtureless.git
 
-2. Install some required packages:
+1. Install some required packages:
 
-        $ sudo apt-get install python python-dev python-pip
+        $ sudo apt-get install python3.6-dev python3.7-dev python-pip
 
-3.  Install virtualenv and virtualenvwrapper:
+1.  Install virtualenv and virtualenvwrapper:
 
         $ pip install virtualenv
         $ pip install virtualenvwrapper
 
-4.  Add the following to your **~/.bashrc** or **~/.zshrc** file:
+1.  Add the following to your **~/.bashrc** or **~/.zshrc** file:
 
         source /usr/local/bin/virtualenvwrapper.sh
 
-5.  Type the following:
+1.  Type the following:
 
         $ source /usr/local/bin/virtualenvwrapper.sh
 
-6.  Create your virtualenv (for Python 2.7 and Python 3.3, respectively):
+1.  Create your virtualenv (this will place you into the virtualenv):
 
-        $ mkvirtualenv django-fixtureless
-        $ mkvirtualenv django-fixtureless -p /usr/bin/python3
+        $ mkvirtualenv fixtureless -p /usr/bin/python3
 
+1.  Add the following to the end of the file **~/.virtualenvs/fixtureless/bin/postactivate**:
 
-**Note**
+        export PYTHONPATH=~/django_fixtureless:~/django_fixtureless/fixtureless/tests/test_django_project
 
-    If you are using any virtualenv version prior to 1.10 it is strongly
-    recommended that you upgrade to the most recent version (especially
-    if you want to use Python 3).
+1.  Re-activate the virtualenv (leave the virtualenv, and re-enter to gain the new env var):
 
-7.  Add the following to the end of the file
-    **~/.virtualenvs/django-fixtureless/bin/postactivate**:
+        $ deactivate fixtureless
+        $ workon fixtureless
 
-        export DJANGO_SETTINGS_MODULE=test_django_project.settings.sqlite
-        export PYTHONPATH=$PYTHONPATH:~/django-fixtureless/fixtureless/tests/test_django_project/test_django_project/:~/django-fixtureless/fixtureless/
+9.  Install the required Python libraries:
 
-8.  Activate the virtualenv:
-
-        $ workon django-fixtureless
-
-9.  Install the required Python libraries (for Python 2.7 or
-    Python 3.3, respectively):
-
-        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/p2.pip
-        (django-fixtureless)$ pip install -r ~/django-fixtureless/requirements/p3.pip
-
+        (fixtureless)$ pip install -r ~/django-fixtureless/requirements.txt
