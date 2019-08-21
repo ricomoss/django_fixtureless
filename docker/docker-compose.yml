@@ -1,0 +1,107 @@
+##########
+# Containerized Build Environment for Ubuntu Trusty Tahr
+# Uses base images built from base_env and dev Dockerfiles
+#
+# Build example:
+#  docker-compose up
+#
+# Usage example:
+#  docker-compose run --rm <command>
+#  If no command is specified, will use the default entrypoint scripts
+#  ie.
+#   docker-compose run --rm postgres
+#   docker-compose run --rm mysql
+#   docker-compose run --rm sqlite
+#
+#  The (optional) --rm option removes the container automatically once you are done using it
+#
+##########
+
+version: "3"
+
+services:
+  postgres_py36_django21:
+    build:
+      context: .
+      dockerfile: postgres_py36_djang21.Dockerfile
+    image: fixtureless
+    working_dir: ../
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings.postgres
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH = ../:../fixtureless/tests/test_django_project
+    command: ['pytest']
+
+  postgres_py36_django22:
+    build:
+      context: .
+      dockerfile: postgres_py36_djang22.Dockerfile
+    image: fixtureless
+    working_dir: ../
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings.postgres
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH = ../:../fixtureless/tests/test_django_project
+    command: ['pytest']
+
+  postgres_py37_django21:
+    build:
+      context: .
+      dockerfile: postgres_py37_django21.Dockerfile
+    image: fixtureless
+    working_dir: ../
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings.postgres
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH = ../:../fixtureless/tests/test_django_project
+    command: ['pytest']
+
+  postgres_py37_django22:
+    build:
+      context: .
+      dockerfile: postgres_py37_django22.Dockerfile
+    image: fixtureless
+    working_dir: ../
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings.postgres
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH = ../:../fixtureless/tests/test_django_project
+    command: ['pytest']
+
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fixtureless
+    working_dir: ../
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings.mysql
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH = ../:../fixtureless/tests/test_django_project
+    command: ['pytest']
+
+  sqlite:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fixtureless
+    working_dir: ../
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings.mysql
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH = ../:../fixtureless/tests/test_django_project
+    command: ['pytest']
+
+  validate:
+    command: "python validate_repo.py"
+    image: fixtureless
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYLINT_COMMAND=/usr/local/bin/pylint
