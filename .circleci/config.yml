@@ -105,8 +105,14 @@ jobs:
 
 workflows:
   version: 2
-  build_and_publish:
+  build_and_test:
     jobs:
-    - test_sqlite
+    - test_sqlite:
+        requires:
+          - build
     - test_postgres
+        requires:
+          - build
     - test_mysql
+      requires:
+        - build
