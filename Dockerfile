@@ -1,9 +1,8 @@
 FROM alpine
 
-# Set execution environment
 COPY requirements /requirements
 
-# Install dependencies from repository
+# Install system build dependencies
 RUN set -ex \
     && apk add --no-cache --virtual .build-deps \
             build-base \

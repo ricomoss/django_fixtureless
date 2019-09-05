@@ -1,12 +1,14 @@
 version: 2
 jobs:
   # Test Fixtureless with sqlite
-  test_sqlite:
-    docker:
-    - image: jmichelsen/fixtureless:latest
-    environment:
-      - DJANGO_SETTINGS_MODULE: test_django_project.settings.sqlite
-    working_directory: /code/fixtureless/tests/test_django_project
+  test_sqlite_py2:
+    common_setup: &sqlite_common
+      docker:
+      - image: jmichelsen/fixtureless:latest
+      environment:
+        - DJANGO_SETTINGS_MODULE: test_django_project.settings.sqlite
+      working_directory: /code/fixtureless/tests/test_django_project
+    <<: *sqlite_common
     steps:
       - checkout: &checkout
           path: /code
@@ -19,32 +21,42 @@ jobs:
       - run: &run_python2_tests
           name: Run Python2 tests
           command: |
-            /py2/bin/pytest --cov --junitxml=test_reports/junit_py2.xml
+            /py2/bin/pytest --cov --junitxml=test_reports/junit.xml
       - run: &run_python3_tests
           name: Run Python3 tests
           command: |
-            /py3/bin/pytest --cov --junitxml=test_reports/junit_py3.xml
+            /py3/bin/pytest --cov --junitxml=test_reports/junit.xml
       - store_test_results: &store_results
           path: test_reports
       - store_artifacts: &store_artifacts
           path: test_reports
+  test_sqlite_py3:
+    <<: *sqlite_common
+    steps:
+      - checkout: *checkout
+      - run: *update_requirements
+      - run: *run_python3_tests
+      - store_test_results: *store_results
+      - store_artifacts: *store_artifacts
   # Test Fixtureless with Postgres
-  test_postgres:
-    docker:
-    - image: jmichelsen/fixtureless:latest
-    - image: postgres:alpine
+  test_postgres_py2:
+    common_setup: &postgres_common
+      docker:
+      - image: jmichelsen/fixtureless:latest
+      - image: postgres:alpine
+        environment:
+          POSTGRES_PASSWORD: fixtureless
+          POSTGRES_USER: fixtureless
+          POSTGRES_DB: fixtureless
       environment:
-        POSTGRES_PASSWORD: fixtureless
-        POSTGRES_USER: fixtureless
-        POSTGRES_DB: fixtureless
-    environment:
-    - PSQL_HOST: localhost
-    - DJANGO_SETTINGS_MODULE: test_django_project.settings.postgres
-    working_directory: /code/fixtureless/tests/test_django_project
+      - PSQL_HOST: localhost
+      - DJANGO_SETTINGS_MODULE: test_django_project.settings.postgres
+      working_directory: /code/fixtureless/tests/test_django_project
+    <<: *postgres_common
     steps:
     - checkout: *checkout
     - run: *update_requirements
-    - run:
+    - run: &wait_for_postgres
         name: Waiting for Postgres to be ready
         command: |
           for i in `seq 1 10`;
@@ -55,6 +67,14 @@ jobs:
           done
           echo Failed waiting for Postgress && exit 1
     - run: *run_python2_tests
+    - store_test_results: *store_results
+    - store_artifacts: *store_artifacts
+  test_postgres_py3:
+    <<: *postgres_common
+    steps:
+    - checkout: *checkout
+    - run: *update_requirements
+    - run: *wait_for_postgres
     - run: *run_python3_tests
     - store_test_results: *store_results
     - store_artifacts: *store_artifacts
@@ -79,14 +99,17 @@ jobs:
         command: |
           while ! mysqladmin ping -h 127.0.0.1; do sleep 1; done
     - run: *run_python2_tests
-    - run: *run_python3_tests
     - store_test_results: *store_results
     - store_artifacts: *store_artifacts
 
 workflows:
   version: 2
-  build_and_test:
+  test_python2:
     jobs:
-    - test_sqlite
-    - test_postgres
+    - test_sqlite_py2
+    - test_postgres_py2
     - test_mysql
+  test_python3:
+    jobs:
+    - test_sqlite_py3
+    - test_postgres_py3
