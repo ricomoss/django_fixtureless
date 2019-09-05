@@ -37,3 +37,13 @@ the mysql-python we will not write support for it within the local testing
 and development environments.
 
 [MySQL-for-Python-3](https://github.com/davispuh/MySQL-for-Python-3)
+
+
+```bash
+    $ docker-compose build fixtureless_base
+    $ docker-compose run --rm fixtureless /py2/bin/python manage.py test test_django_project.test_app.tests
+    $ docker-compose run --rm fixtureless /py3/bin/python manage.py test
+    $ docker-compose run --rm -e DJANGO_SETTINGS_MODULE=test_django_project.settings.sqlite fixtureless /py3/bin/python manage.py test
+    $ docker-compose run --rm -e DJANGO_SETTINGS_MODULE=test_django_project.settings.sqlite fixtureless /py3/bin/python manage.py test
+    $ docker-compose run --rm -e DJANGO_SETTINGS_MODULE=test_django_project.settings.mysql fixtureless /py2/bin/python manage.py test test_django_project.test_app.tests --noinput
+```
