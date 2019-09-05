@@ -87,6 +87,6 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-    - test_sqlite:
-    - test_postgres:
-    - test_mysql:
+    - test_sqlite
+    - test_postgres
+    - test_mysql
