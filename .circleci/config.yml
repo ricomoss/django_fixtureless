@@ -1,25 +1,5 @@
 version: 2
 jobs:
-  build:
-    docker:
-      - image: jmichelsen/fixtureless:latest
-    environment:
-      - IMAGE_NAME: jmichelsen/fixtureless
-    steps:
-    - checkout
-    - run:
-        name: Install Docker client
-        command: |
-          set -x
-          VER="18.06.0-ce"
-          curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-          tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-          mv /tmp/docker/* /usr/bin
-    - setup_remote_docker
-    - run:
-        name: Build Docker Image
-        command: |
-          docker build -t $IMAGE_NAME:$CIRCLE_WORKFLOW_ID .
   # Test Fixtureless with sqlite
   test_sqlite:
     docker:
@@ -107,13 +87,6 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-    - build
     - test_sqlite:
-        requires:
-          - build
     - test_postgres:
-        requires:
-          - build
     - test_mysql:
-        requires:
-          - build
