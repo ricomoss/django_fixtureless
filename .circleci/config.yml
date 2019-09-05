@@ -110,9 +110,9 @@ workflows:
     - test_sqlite:
         requires:
           - build
-    - test_postgres
+    - test_postgres:
         requires:
           - build
-    - test_mysql
-      requires:
-        - build
+    - test_mysql:
+        requires:
+          - build
