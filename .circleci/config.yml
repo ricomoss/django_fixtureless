@@ -19,11 +19,11 @@ jobs:
     - run:
         name: Build Docker Image
         command: |
-          docker build -t $IMAGE_NAME:$CIRCLE_WORKFLOW_ID .
+          docker build -t $IMAGE_NAME:latest .
   # Test Fixtureless with sqlite
   test_sqlite:
     docker:
-    - image: jmichelsen/fixtureless:$CIRCLE_WORKFLOW_ID
+    - image: jmichelsen/fixtureless:latest
     environment:
       - DJANGO_SETTINGS_MODULE: test_django_project.settings.sqlite
     working_directory: /code/fixtureless/tests/test_django_project
@@ -51,7 +51,7 @@ jobs:
   # Test Fixtureless with Postgres
   test_postgres:
     docker:
-    - image: jmichelsen/fixtureless:circle
+    - image: jmichelsen/fixtureless:latest
     - image: postgres:alpine
       environment:
         POSTGRES_PASSWORD: fixtureless
@@ -81,7 +81,7 @@ jobs:
   # Test Fixtureless with MySQL
   test_mysql:
     docker:
-      - image: jmichelsen/fixtureless:circle
+      - image: jmichelsen/fixtureless:latest
       - image: circleci/mysql:8.0.4
         environment:
           MYSQL_DATABASE: fixtureless
