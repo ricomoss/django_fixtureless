@@ -19,11 +19,11 @@ jobs:
     - run:
         name: Build Docker Image
         command: |
-          docker build -t $IMAGE_NAME:latest .
+          docker build -t $IMAGE_NAME:$CIRCLE_WORKFLOW_ID .
   # Test Fixtureless with sqlite
   test_sqlite:
     docker:
-    - image: jmichelsen/fixtureless:latest
+    - image: jmichelsen/fixtureless:$CIRCLE_WORKFLOW_ID
     environment:
       - DJANGO_SETTINGS_MODULE: test_django_project.settings.sqlite
     working_directory: /code/fixtureless/tests/test_django_project
