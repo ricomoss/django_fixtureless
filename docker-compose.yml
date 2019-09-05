@@ -25,11 +25,6 @@ services:
         - postgres_db
         - mysql_db
       image: fixtureless_base
-      command: "/py2/bin/python manage.py test test_django_project.test_app.tests --noinput"
       environment:
-        - DJANGO_SETTINGS_MODULE=test_django_project.settings.postgres
         - PSQL_HOST=postgres_db
         - MYSQL_HOST=mysql_db
-        - PSQL_NAME=fixtureless
-        - PSQL_USERNAME=fixtureless
-        - PSQL_PASSWORD=fixtureless
