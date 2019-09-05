@@ -3,7 +3,7 @@ jobs:
   # Test Fixtureless with sqlite
   test_sqlite:
     docker:
-    - image: jmichelsen/fixtureless:$CIRCLE_WORKFLOW_ID
+    - image: jmichelsen/fixtureless:latest
     environment:
       - DJANGO_SETTINGS_MODULE: test_django_project.settings.sqlite
     working_directory: /code/fixtureless/tests/test_django_project
