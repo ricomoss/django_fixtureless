@@ -3,6 +3,7 @@ import decimal
 import math
 import random
 import json
+import uuid
 
 from django.db import models
 from django.db import connection
@@ -324,6 +325,12 @@ class Generator(object):
         if field.default != NOT_PROVIDED:
             return self._generate_field_with_default(**kwargs)
         return json.dumps(utils.get_random_dict())
+
+    def _generate_uuidfield(self, **kwargs):
+        field = kwargs['field']
+        if self.is_model and field.default != NOT_PROVIDED:
+            return self._generate_field_with_default(**kwargs)
+        return uuid.uuid4()
 
     @staticmethod
     def _generate_field_with_default(**kwargs):
