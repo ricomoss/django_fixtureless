@@ -1,3 +1,5 @@
+import os
+
 from settings.base import *
 
 
@@ -6,8 +8,13 @@ from settings.base import *
 
 DATABASES['default'] = {
     'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'test_django_project_db',
-    'USER': 'test_user',
+    'NAME': 'fixtureless',
+    'USER': 'fixtureless',
+    'PASSWORD': 'fixtureless',
+    'HOST': os.environ['MYSQL_HOST'],
+    'TEST': {
+        'NAME': 'fixtureless',
+    }
 }
 
 try:

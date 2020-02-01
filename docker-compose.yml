@@ -1,0 +1,30 @@
+version: "3.3"
+
+services:
+  postgres_db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: fixtureless
+      POSTGRES_USER: fixtureless
+      POSTGRES_PASSWORD: fixtureless
+
+  mysql_db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: fixtureless
+      MYSQL_USER: fixtureless
+      MYSQL_PASSWORD: fixtureless
+
+  fixtureless_base:
+    build:
+      context: .
+    image: fixtureless_base
+
+  fixtureless:
+      depends_on:
+        - postgres_db
+        - mysql_db
+      image: fixtureless_base
+      environment:
+        - PSQL_HOST=postgres_db
+        - MYSQL_HOST=mysql_db

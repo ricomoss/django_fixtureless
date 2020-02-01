@@ -1,3 +1,5 @@
 django
 pillow
 psycopg2
+pytest-cov==2.7.1
+pytest-django==3.5.1
